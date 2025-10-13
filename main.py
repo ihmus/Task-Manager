@@ -1,14 +1,14 @@
-#               BİSMİLLAHİRRAHMANİRRAHİM Fİ EVVELİHİ VEL AHİRİ                                           #
-#               BİSMİLLAHİRRAHMANİRRAHİM                      بسم الله الرحمن الرحيم                   #
+#    BİSMİLLAHİRRAHMANİRRAHİM Fİ EVVELİHİ VEL AHİRİ                                                      #
+#    BİSMİLLAHİRRAHMANİRRAHİM                      بسم الله الرحمن الرحيم                              #
 ##########################################################################################################
-#               Şems Suresi 7-9                                                                          #
-#               Nefse ve onu şekillendirene,                                                             # 
-#               Sonra ona kötülüğe eğilimini ve takvasını ilham edene.                                   #
-#               Onu arındıran kurtuluşa ermiştir.                                                        #
+#    Şems Suresi 7-9                                                                                     #
+#    Nefse ve onu düzgün bir biçimde şekillendirip                                                       # 
+#    ona kötülük duygusunu ve takvasını (kötülükten sakınma yeteneğini) ilham edene andolsun ki,         #
+#    nefsini arındıran kurtuluşa ermiştir.                                                               #
 ##########################################################################################################
-#               ALLAH insana beyanı verendir.                                                            # 
-#               insan bu beyanla kötülük yapmakla iyilik yapmak arasında seçim yapar.                    #
-#               kötü amellerde veya iyi amellerde bulunanlar karşılığını eksiksiz alacaktır.             #
+#    ALLAH, insana beyanı verendir.                                                                      # 
+#    insan bu beyanla kötülük yapmakla iyilik yapmak arasında seçim yapar.                               #
+#    kötü amellerde veya iyi amellerde bulunanlar karşılığını eksiksiz alacaktır.                        #
 #                                                                                                        #
 #                                                                                                        #
 #                                                                                                        #
