@@ -20,4 +20,5 @@ source vb/bin/activate  # Windows: cd vb/Scripts && activate
 pip install -r requirements.txt
 
 # Flask uygulamasını çalıştırın
-flask run
+python ortamını vs code sağ alt kısmından vb seçin
+main.py dosyasını çalıştırın
