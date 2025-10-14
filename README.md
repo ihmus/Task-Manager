@@ -13,8 +13,8 @@ git clone https://github.com/kullanici_adi/Task-Manager.git
 cd Task-Manager
 
 # Sanal ortam oluşturun ve aktif edin
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+python -m venv vb
+source vb/bin/activate  # Windows: cd vb/Scripts && activate
 
 # Gereksinimleri yükleyin
 pip install -r requirements.txt
