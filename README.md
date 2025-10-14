@@ -8,6 +8,7 @@ Flask + Tailwind ile geliştirilmiş görev yönetim uygulaması.
 ```bash
 # Depoyu klonlayın
 git clone https://github.com/kullanici_adi/Task-Manager.git
+veya direkt .zip olarak indirin
 
 # Proje dizinine girin
 cd Task-Manager
