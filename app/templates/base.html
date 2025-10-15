@@ -1,0 +1,16 @@
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %} {% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+    <body class="h-screen overflow-hidden flex items-center justify-center" style="background: #edf2f7;">   
+    {% block content %}
+    <!-- İçerik buraya gelecek -->
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </body>
+</html>
