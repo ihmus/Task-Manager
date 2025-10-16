@@ -1,10 +1,11 @@
 # Task-Manager
 
-
 Flask + Tailwind ile geliştirilmiş görev yönetim uygulaması.
 
 
+
 ## 🚀 Kurulum
+
 ```bash
 # Depoyu klonlayın
 git clone https://github.com/kullanici_adi/Task-Manager.git
@@ -23,3 +24,4 @@ pip install -r requirements.txt
 # Flask uygulamasını çalıştırın
 python ortamını vs code sağ alt kısmından vb seçin
 main.py dosyasını çalıştırın
+```
