@@ -2,8 +2,6 @@
 
 Flask + Tailwind ile geliştirilmiş görev yönetim uygulaması.
 
-
-
 ## 🚀 Kurulum
 
 ```bash
