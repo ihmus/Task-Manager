@@ -2,9 +2,9 @@
 %}
 <h1 align="center">Notes</h1>
 <ul class="list-group list-group-flush" id="notes">
-  {% for note in user.notes %}
+  {% for note in notes %}
   <li class="list-group-item">
-    {{ note.data }}
+    {{ note.data }} - <small style ="color:{{ note.color }};">{{ note.time_passed }}</small>
     <button type="button" class="close" onClick="deleteNote({{ note.id }})">
       <span aria-hidden="true">&times;</span>
     </button>
