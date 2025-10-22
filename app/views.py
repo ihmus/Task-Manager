@@ -59,7 +59,7 @@ def home():
             'color':note.color
         })
 
-    return render_template("home.html", user=current_user, notes=notes_with_time)
+    return render_template("home.html",notes=notes_with_time)
 
 
 
