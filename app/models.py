@@ -8,13 +8,20 @@ class Note(db.Model):
     data = db.Column(db.String(10000))
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
+####################    ^      #######################
+#                       |      #######################
+#                       |      #######################
+#                       |      #######################
+#                       |      #######################
+#    userin id bilgisinide bu tabloya veriyoruz      #
+######################################################
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
+<<<<<<< HEAD
     notes = db.relationship('Note')
 
 
@@ -22,3 +29,6 @@ class User(db.Model, UserMixin):
 
 
 
+=======
+    notes = db.relationship('Note') # Burada ilişki verdik ileride user üzerinden ulaşabilmek için
+>>>>>>> 848dff3795fb8698b91adf52839f2da6cea75ef9
