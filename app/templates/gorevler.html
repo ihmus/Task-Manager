@@ -1,0 +1,69 @@
+{% extends "base.html" %} {% block title %}Görevler{% endblock %} {% block
+content %}
+<div class="pt-24 px-6">
+  <!-- Görevler Flex -->
+  <div class="flex flex-wrap justify-start gap-6">
+{% for note in notes %}
+  {% if (default_mode == 1) 
+        or (default_mode == 2 and not note.completed) 
+        or (default_mode == 3 and note.completed) %}
+    
+    <div
+      class="relative rounded-2xl shadow-lg p-6 cursor-pointer transform hover:scale-105 transition duration-300
+             {% if note.color == 'green' %} bg-purple-200
+             {% elif note.color == 'orange' %} bg-purple-300
+             {% elif note.color == 'red' %} bg-purple-400 animate-pulse
+             {% else %} bg-purple-100 {% endif %}"
+      style="min-height: 7rem; flex: 1 1 calc(33% - 1.5rem)"
+      @click="window.location.href='#'"
+    >
+      <!-- Görev İsmi -->
+      <h2 class="text-xl font-bold mb-4 text-center text-gray-900">
+        {{ note.data }}
+      </h2>
+
+      <!-- Checkbox: tamamlandı mı? -->
+      <div class="flex justify-center mb-4">
+    <form action="{{ url_for('views.toggle_note', note_id=note.id) }}" method="post">
+        <input type="hidden" name="default_mode" value="{{ default_mode }}">
+        <label class="inline-flex items-center space-x-2">
+            <input type="checkbox" name="completed" onchange="this.form.submit()" {% if note.completed %}checked{% endif %}>
+            <span class="text-gray-700 text-sm">
+                {% if note.completed %}
+                    Tamamlandı
+                {% else %}
+                    Tamamlanmadı
+                {% endif %}
+            </span>
+        </label>
+    </form>
+</div>
+
+
+      <!-- Yatay Progress Bar -->
+      <div class="w-full bg-gray-300 rounded-full h-4 mb-4 overflow-hidden">
+        <div
+          class="h-4 rounded-full
+                 {% if note.color == 'green' %} bg-green-600
+                 {% elif note.color == 'orange' %} bg-yellow-500
+                 {% elif note.color == 'red' %} bg-red-600
+                 {% else %} bg-purple-600 {% endif %}"
+          style="width: {{ note.percentage or 50 }}%;"
+        ></div>
+      </div>
+
+      <p class="text-center text-sm font-semibold text-gray-800 mb-2">
+        {{ note.percentage or 50 }}%
+      </p>
+
+      <!-- Alt Bilgi / Zaman -->
+      <p class="text-center text-gray-700 text-sm mt-auto">
+        {{ note.time_passed }}
+      </p>
+    </div>
+
+  {% endif %}
+{% endfor %}
+  </div>
+</div>
+{% endblock %}

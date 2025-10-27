@@ -56,12 +56,63 @@ def home():
             'id': note.id,
             'data': note.data,
             'time_passed': time_passed,
-            'color':note.color
+            'color':note.color,
         })
 
-    return render_template("home.html",notes=notes_with_time)
+    return render_template("index.html",notes=notes_with_time)
+@views.route('/calisanlar', methods=['GET', 'POST'])
+@login_required
+def calisanlar():
+    """Profilim / Çalışan listesi"""
+    # Çalışan listesi veya profil bilgisi
+    notes_with_time = []
+    return render_template("calisanlar.html", notes=notes_with_time, active_page='calisanlar')
 
 
+@views.route('/gorevler', methods=['GET', 'POST'])
+@login_required
+def gorevler():
+    """Görevler sayfası"""
+    status_filter = request.args.get('status', 'active')  # default aktif
+    default_mode = int(request.args.get('default_mode', 1))  # default 1
+    notes_with_time = []
+
+    for note in current_user.notes:
+        note_date = note.date
+        if note_date.tzinfo is None:
+            note_date = note_date.replace(tzinfo=pytz.utc)
+        delta = datetime.now(pytz.utc) - note_date
+        seconds = int(delta.total_seconds())
+
+        # Zaman kontrolü
+        if seconds < 86400:
+            time_passed = f"{seconds // 3600} saat önce" if seconds >= 3600 else f"{seconds // 60} dakika önce" if seconds >= 60 else f"{seconds} saniye önce"
+            note.color = "green"  # aktif
+        else:
+            time_passed = f"{seconds // 86400} gün önce"
+            note.color = "red"  # pasif
+
+        # Yüzdelik için örnek değer
+        note.percentage = 50  # placeholder, ileride gerçek değer ile değiştir
+
+        notes_with_time.append({
+            'id': note.id,
+            'data': note.data,
+            'time_passed': time_passed,
+            'color': note.color,
+            'percentage': note.percentage,
+            'completed': note.completed
+        })
+
+    # Filtreleme
+    if status_filter == 'active':
+        # Aktifler önce
+        notes_with_time = [n for n in notes_with_time if n['color'] != 'red'] + [n for n in notes_with_time if n['color'] == 'red']
+    else:
+        # Pasifler önce
+        notes_with_time = [n for n in notes_with_time if n['color'] == 'red'] + [n for n in notes_with_time if n['color'] != 'red']
+
+    return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
 
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
@@ -74,3 +125,18 @@ def delete_note():
             db.session.commit()
 
     return jsonify({})
+@views.route('/note/<int:note_id>/toggle', methods=['POST'])
+@login_required
+def toggle_note(note_id):
+    note = Note.query.get_or_404(note_id)
+
+    # Toggle tamamlanma durumu
+    note.completed = not note.completed
+    db.session.commit()
+
+    # POST form verisinden al
+    default_mode = request.form.get('default_mode', 1)
+
+    # redirect ederken default_mode parametresini gönder
+    return redirect(url_for('views.gorevler', default_mode=default_mode))
+
