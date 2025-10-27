@@ -3,25 +3,6 @@ content %}
 
 <div class="flex-1 p-8">
   <!-- Notlar -->
-  <ul class="space-y-2" id="notes">
-    {% for note in notes %}
-    <li
-      class="flex justify-between items-center bg-white border border-gray-200 rounded-lg p-3 shadow-sm"
-    >
-      <span>{{ note.data }}</span>
-      <small class="text-sm" style="color:{{ note.color }};"
-        >{{ note.time_passed }}</small
-      >
-      <button
-        type="button"
-        class="text-red-500 hover:text-red-700"
-        onClick="deleteNote({{ note.id }})"
-      >
-        &times;
-      </button>
-    </li>
-    {% endfor %}
-  </ul>
 
   <!-- Not Ekleme Formu -->
   <form method="POST" class="mt-4">

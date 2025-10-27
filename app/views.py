@@ -114,17 +114,22 @@ def gorevler():
 
     return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
 
-@views.route('/delete-note', methods=['POST'])
-def delete_note():  
-    note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
-    noteId = note['noteId']
-    note = Note.query.get(noteId)
-    if note:
-        if note.user_id == current_user.id:
-            db.session.delete(note)
-            db.session.commit()
+@views.route('/delete-note/<int:note_id>', methods=['POST'])
+@login_required
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    if note.user_id != current_user.id:
+        flash("Bu neden oldu", "error")
+        return redirect(url_for('views.gorevler'))
 
-    return jsonify({})
+    db.session.delete(note)
+    db.session.commit()
+    flash("Not silindi!", "success")
+    
+    # default_mode parametresi ile redirect
+    default_mode = request.form.get('default_mode', 1)
+    return redirect(url_for('views.gorevler', default_mode=default_mode))
+
 @views.route('/note/<int:note_id>/toggle', methods=['POST'])
 @login_required
 def toggle_note(note_id):
