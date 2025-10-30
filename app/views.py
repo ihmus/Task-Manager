@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from .models import Note
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from . import db
 import pytz
@@ -61,9 +61,6 @@ def home():
         })
 
     return render_template("index.html", notes=notes_with_time)
-
-
-
 
 
 
@@ -134,7 +131,6 @@ def calisanlar():
 @views.route('/gorevler', methods=['GET', 'POST'])
 @login_required
 def gorevler():
-    """Görevler sayfası"""
     status_filter = request.args.get('status', 'active')  # default aktif
     default_mode = int(request.args.get('default_mode', 1))  # default 1
     notes_with_time = []
@@ -175,6 +171,8 @@ def gorevler():
         notes_with_time = [n for n in notes_with_time if n['color'] == 'red'] + [n for n in notes_with_time if n['color'] != 'red']
 
     return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
+
+
 
 @views.route('/delete-note/<int:note_id>', methods=['POST'])
 @login_required
