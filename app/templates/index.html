@@ -1,27 +1,79 @@
-{% extends "base.html" %} {% block title %}Ana Sayfa{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+{% block content %}
 
 <div class="flex-1 p-8">
-  <!-- Notlar -->
+  <h1 class="text-2xl font-semibold text-center mb-6">Görevlerim</h1>
+
+  <!-- Not Listesi -->
+  <ul class="space-y-4 mb-8">
+    {% for note in notes %}
+    <li class="bg-white shadow-md rounded-lg p-4">
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-semibold text-lg">{{ note.data }}</span>
+        <button
+          type="button"
+          class="text-red-500 hover:text-red-700 text-xl"
+          onClick="deleteNote({{ note.id }})"
+        >
+          &times;
+        </button>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="w-full bg-gray-200 rounded-full h-3 mb-1">
+        <div
+          class="h-3 rounded-full"
+          style="width: {{ note.progress }}%; background-color: {{ note.color }};"
+        ></div>
+      </div>
+
+      <!-- Yüzde ve kalan süre -->
+      <div class="flex justify-between text-sm text-gray-600">
+        <span>{{ note.progress }}%</span>
+        <span>Kalan Süre: {{ note.remaining }}</span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
 
   <!-- Not Ekleme Formu -->
-  <form method="POST" class="mt-4">
+  <form method="POST" class="space-y-3">
     <textarea
       name="note"
       id="note"
-      class="w-full border rounded-md p-2"
-      placeholder="Yeni not ekle..."
+      class="w-full border rounded-md p-3"
+      placeholder="Yeni görev açıklaması..."
+      required
     ></textarea>
-    <div class="text-center mt-2">
+
+    <input
+      type="number"
+      name="months"
+      min="1"
+      class="w-full border rounded-md p-3"
+      placeholder="Tamamlanma süresi (ay cinsinden)"
+      required
+    />
+
+    <div class="text-center">
       <button
         type="submit"
-        class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+        class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
       >
-        Not Ekle
+        Görev Ekle
       </button>
     </div>
   </form>
 </div>
 
 {% endblock %} {% block javascript %}
+<script>
+  function deleteNote(noteId) {
+    fetch("/delete-note", {
+      method: "POST",
+      body: JSON.stringify({ noteId: noteId }),
+    }).then(() => window.location.reload());
+  }
+</script>
 {% endblock %}
