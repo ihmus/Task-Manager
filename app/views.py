@@ -1,70 +1,14 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from .models import Note
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+from datetime import datetime
 from . import db
 import pytz
 import json
 
 views = Blueprint('views', __name__)
 
-#13.satırdan itibaren schule ekledi
 
-from dateutil.relativedelta import relativedelta #bu satırı da yukardan silmeyi unutma eğer kodların tamamını silersen
-
-@views.route('/', methods=['GET', 'POST'])
-@login_required
-def home():
-    if request.method == 'POST': 
-        note = request.form.get('note')
-        months = request.form.get('months')  # 🆕 yeni alan
-
-        if len(note) < 1:
-            flash('Note is too short!', category='error')
-        elif not months or not months.isdigit():
-            flash('Lütfen ay cinsinden geçerli bir süre giriniz!', category='error')
-        else:
-            months = int(months)
-            start_date = datetime.now()
-            end_date = start_date + relativedelta(months=months)
-
-            new_note = Note(
-                data=note,
-                duration_months=months,
-                end_date=end_date,
-                user_id=current_user.id
-            )
-            db.session.add(new_note)
-            db.session.commit()
-            flash('Görev eklendi!', category='success')
-            return redirect(url_for('views.home'))
-
-    notes_with_time = []
-    for note in current_user.notes:
-        progress = note.calculate_progress()
-        remaining = note.remaining_time()
-
-        if progress < 50:
-            color = "green"
-        elif progress < 80:
-            color = "orange"
-        else:
-            color = "red"
-
-        notes_with_time.append({
-            'id': note.id,
-            'data': note.data,
-            'color': color,
-            'progress': round(progress),
-            'remaining': remaining
-        })
-
-    return render_template("index.html", notes=notes_with_time)
-
-
-
-"""
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
@@ -116,6 +60,7 @@ def home():
         })
 
     return render_template("index.html",notes=notes_with_time)
+
 @views.route('/calisanlar', methods=['GET', 'POST'])
 @login_required
 def calisanlar():
@@ -171,6 +116,7 @@ def update_note(note_id):
 @views.route('/gorevler', methods=['GET', 'POST'])
 @login_required
 def gorevler():
+    """Görevler sayfası"""
     status_filter = request.args.get('status', 'active')  # default aktif
     default_mode = int(request.args.get('default_mode', 1))  # default 1
     notes_with_time = []
@@ -211,8 +157,6 @@ def gorevler():
         notes_with_time = [n for n in notes_with_time if n['color'] == 'red'] + [n for n in notes_with_time if n['color'] != 'red']
 
     return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
-
-
 
 @views.route('/delete-note/<int:note_id>', methods=['POST'])
 @login_required
