@@ -22,7 +22,7 @@ def home():
         if len(note) < 1:
             flash('Note is too short!', category='error') 
         else:
-            new_note = Note(data=note, user_id=current_user.id)  #not için şema hazırla
+            new_note = Note(title=note, user_id=current_user.id)  #not için şema hazırla
             db.session.add(new_note) # Databaseye notu ekle
             db.session.commit()
             flash('Note added!', category='success')
@@ -54,12 +54,13 @@ def home():
 
         notes_with_time.append({
             'id': note.id,
-            'data': note.data,
+            'title': note.title,
             'time_passed': time_passed,
             'color':note.color,
         })
 
     return render_template("index.html",notes=notes_with_time)
+
 @views.route('/calisanlar', methods=['GET', 'POST'])
 @login_required
 def calisanlar():
@@ -68,7 +69,50 @@ def calisanlar():
     notes_with_time = []
     return render_template("calisanlar.html", notes=notes_with_time, active_page='calisanlar')
 
-
+@views.route('/edit/<int:note_id>', methods=['GET'])
+@login_required
+def edit_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Kullanıcının kendi notunu düzenlemesini sağla
+    if note.user_id != current_user.id:
+        flash('Bu görevi düzenleme yetkiniz yok.', 'error')
+        return redirect(url_for('views.home'))
+    
+    return render_template('edit_note.html', note=note)
+@views.route('/update/<int:note_id>', methods=['POST'])
+@login_required
+def update_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    
+    # Kullanıcının kendi notunu güncellemesini sağla
+    if note.user_id != current_user.id:
+        flash('Bu görevi güncelleme yetkiniz yok.', 'error')
+        return redirect(url_for('views.home'))
+    
+    # Formdan verileri al
+    title = request.form.get('title')
+    description = request.form.get('description')
+    color = request.form.get('color')
+    
+    # Validasyon
+    if not title or len(title) < 1:
+        flash('Görev başlığı boş olamaz!', 'error')
+        return redirect(url_for('views.edit_note', note_id=note_id))
+    
+    # Notu güncelle
+    note.title = title
+    note.description = description if description else None
+    note.color = color if color else 'purple'
+    
+    try:
+        db.session.commit()
+        flash('Görev başarıyla güncellendi!', 'success')
+        return redirect(url_for('views.task_details', note_id=note_id))
+    except Exception as e:
+        db.session.rollback()
+        flash('Görev güncellenirken bir hata oluştu.', 'error')
+        return redirect(url_for('views.edit_note', note_id=note_id))
 @views.route('/gorevler', methods=['GET', 'POST'])
 @login_required
 def gorevler():
@@ -97,7 +141,7 @@ def gorevler():
 
         notes_with_time.append({
             'id': note.id,
-            'data': note.data,
+            'title': note.title,
             'time_passed': time_passed,
             'color': note.color,
             'percentage': note.percentage,
@@ -129,7 +173,11 @@ def delete_note(note_id):
     # default_mode parametresi ile redirect
     default_mode = request.form.get('default_mode', 1)
     return redirect(url_for('views.gorevler', default_mode=default_mode))
-
+@views.route('/note/<int:note_id>')
+def task_details(note_id):
+    note = Note.query.get_or_404(note_id)
+    # burada gerekirse time_passed hesaplamasını güncelle
+    return render_template('task_detail.html', note=note)
 @views.route('/note/<int:note_id>/toggle', methods=['POST'])
 @login_required
 def toggle_note(note_id):

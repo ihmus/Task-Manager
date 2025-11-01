@@ -24,12 +24,4 @@ content %}
 </div>
 
 {% endblock %} {% block javascript %}
-<script>
-  function deleteNote(noteId) {
-    fetch("/delete-note", {
-      method: "POST",
-      body: JSON.stringify({ noteId: noteId }),
-    }).then(() => window.location.reload());
-  }
-</script>
 {% endblock %}

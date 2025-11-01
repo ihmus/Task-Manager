@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Görev Düzenle{% endblock %}
+{% block content %}
+<div class="pt-24 px-6 max-w-3xl mx-auto">
+  
+  <!-- Geri Dön Butonu -->
+  <div class="mb-6">
+    <a href="{{ url_for('views.task_details', note_id=note.id) }}" 
+       class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-300">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span class="font-medium">Geri Dön</span>
+    </a>
+  </div>
+
+  <!-- Başlık -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Görevi Düzenle</h1>
+    <p class="text-gray-600">Görev bilgilerini güncelleyin</p>
+  </div>
+
+  <!-- Form Kartı -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    
+    <!-- Üst Gradient Bar -->
+    <div class="h-2 w-full bg-gradient-to-r from-indigo-400 to-purple-500"></div>
+
+    <div class="p-8">
+      <form action="{{ url_for('views.update_note', note_id=note.id) }}" method="post" class="space-y-6">
+        
+        <!-- Görev Başlığı -->
+        <div>
+          <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
+            Görev Başlığı <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="title" 
+            name="title" 
+            value="{{ note.title }}"
+            required
+            maxlength="200"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300"
+            placeholder="Görev başlığını girin">
+          <p class="mt-1 text-xs text-gray-500">Maksimum 200 karakter</p>
+        </div>
+
+        <!-- Açıklama -->
+        <div>
+          <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+            Açıklama
+          </label>
+          <textarea 
+            id="description" 
+            name="description" 
+            rows="6"
+            value="{{ note.description }}"
+            maxlength="1000"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 resize-none"
+            placeholder="Görev hakkında detaylı bilgi ekleyin (isteğe bağlı)">{{ note.description if note.description else '' }}</textarea>
+          <p class="mt-1 text-xs text-gray-500">Maksimum 1000 karakter</p>
+        </div>
+
+        <!-- Renk/Öncelik Seçimi -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-3">
+            Görev Zamanı
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            
+            <!-- Yeşil - Yeni -->
+            <label class="relative cursor-pointer group">
+              <input 
+                type="radio" 
+                name="color" 
+                value="green" 
+                {% if note.color == 'green' %}checked{% endif %}
+                class="peer sr-only">
+              <div class="p-4 rounded-lg border-2 border-gray-200 peer-checked:border-green-500 peer-checked:bg-green-50 hover:border-green-300 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-4 h-4 rounded-full bg-green-500"></div>
+                  <span class="font-semibold text-gray-900">Yeni</span>
+                </div>
+                <p class="text-xs text-gray-600">Yeni oluşturuldu</p>
+              </div>
+            </label>
+
+            <!-- Turuncu - Orta -->
+            <label class="relative cursor-pointer group">
+              <input 
+                type="radio" 
+                name="color" 
+                value="orange" 
+                {% if note.color == 'orange' %}checked{% endif %}
+                class="peer sr-only">
+              <div class="p-4 rounded-lg border-2 border-gray-200 peer-checked:border-orange-500 peer-checked:bg-orange-50 hover:border-orange-300 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-4 h-4 rounded-full bg-orange-500"></div>
+                  <span class="font-semibold text-gray-900">Orta</span>
+                </div>
+                <p class="text-xs text-gray-600">Biraz zaman geçti</p>
+              </div>
+            </label>
+
+            <!-- Kırmızı - Eski -->
+            <label class="relative cursor-pointer group">
+              <input 
+                type="radio" 
+                name="color" 
+                value="red" 
+                {% if note.color == 'red' %}checked{% endif %}
+                class="peer sr-only">
+              <div class="p-4 rounded-lg border-2 border-gray-200 peer-checked:border-red-500 peer-checked:bg-red-50 hover:border-red-300 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-4 h-4 rounded-full bg-red-500"></div>
+                  <span class="font-semibold text-gray-900">Eski</span>
+                </div>
+                <p class="text-xs text-gray-600">Uzun zaman önce</p>
+              </div>
+            </label>
+
+            <!-- Mor - Normal -->
+            <label class="relative cursor-pointer group">
+              <input 
+                type="radio" 
+                name="color" 
+                value="purple" 
+                {% if note.color == 'purple' or not note.color %}checked{% endif %}
+                class="peer sr-only">
+              <div class="p-4 rounded-lg border-2 border-gray-200 peer-checked:border-purple-500 peer-checked:bg-purple-50 hover:border-purple-300 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-1">
+                  <div class="w-4 h-4 rounded-full bg-purple-500"></div>
+                  <span class="font-semibold text-gray-900">Normal</span>
+                </div>
+                <p class="text-xs text-gray-600">Varsayılan</p>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100">
+          
+          <!-- Kaydet Butonu -->
+          <button 
+            type="submit"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-sm hover:shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Değişiklikleri Kaydet
+          </button>
+
+          <!-- İptal Butonu -->
+          <a 
+            href="{{ url_for('views.task_details', note_id=note.id) }}"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all duration-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            İptal
+          </a>
+
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Yardım Kartı -->
+  <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div class="flex gap-3">
+      <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+      </svg>
+      <div>
+        <h3 class="text-sm font-semibold text-blue-900 mb-1">İpucu</h3>
+        <p class="text-sm text-blue-800">Görev renklerini, görevin ne kadar önce oluşturulduğunu belirtmek için kullanabilirsiniz. Bu sayede hangi görevlerin daha eski olduğunu kolayca görebilirsiniz.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

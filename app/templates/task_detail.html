@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Görev Detayı{% endblock %}
+{% block content %}
+<div class="pt-24 px-6 max-w-4xl mx-auto h-screen overflow-y-auto">
+  
+  <!-- Geri Dön Butonu -->
+  <div class="mb-6">
+    <a href="{{ url_for('views.home') }}" 
+       class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-300">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span class="font-medium">Geri Dön</span>
+    </a>
+  </div>
+
+  <!-- Ana Kart -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+    
+    <!-- Üst Gradient Bar -->
+    <div class="h-2 w-full
+                {% if note.color == 'green' %} bg-gradient-to-r from-emerald-400 to-green-500
+                {% elif note.color == 'orange' %} bg-gradient-to-r from-amber-400 to-orange-500
+                {% elif note.color == 'red' %} bg-gradient-to-r from-rose-400 to-red-500
+                {% else %} bg-gradient-to-r from-purple-400 to-indigo-500 {% endif %}">
+    </div>
+
+    <div class="p-8">
+      
+      <!-- Üst Bilgi Çubuğu -->
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <!-- Sol: Durum ve Zaman -->
+        <div class="flex items-center gap-4">
+          {% if note.completed %}
+            <div class="flex items-center gap-2 bg-emerald-50 text-emerald-700 text-sm font-semibold px-4 py-2 rounded-full border border-emerald-200">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span>Tamamlandı</span>
+            </div>
+          {% else %}
+            <div class="flex items-center gap-2 bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-full border border-gray-200">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+              <span>Devam Ediyor</span>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Sağ: Öncelik -->
+        <div class="flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full
+                      {% if note.color == 'green' %} bg-green-500
+                      {% elif note.color == 'orange' %} bg-orange-500
+                      {% elif note.color == 'red' %} bg-red-500
+                      {% else %} bg-purple-500 {% endif %}">
+          </div>
+          <span class="text-sm font-medium text-gray-600">
+            {% if note.color == 'green' %} Yeni Oluşturuldu
+            {% elif note.color == 'orange' %} Biraz Zaman Geçti
+            {% elif note.color == 'red' %} Uzun Zaman Önce
+            {% else %} Normal {% endif %}
+          </span>
+        </div>
+      </div>
+
+      <!-- Başlık -->
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ note.title }}</h1>
+      <p>{{ note.description }}</p>
+      <!-- Zaman Bilgisi -->
+      <div class="flex items-center gap-2 text-gray-600 mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="text-sm font-medium">{{ note.time_passed }}</span>
+      </div>
+
+      <!-- Açıklama -->
+      {% if note.description %}
+        <div class="bg-gray-50 rounded-xl p-6 mb-6">
+          <h3 class="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wide">Açıklama</h3>
+          <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ note.description }}</p>
+        </div>
+      {% endif %}
+
+      <!-- Aksiyon Butonları -->
+      <div class="flex flex-wrap items-center gap-3 pt-6 border-t border-gray-100">
+        
+        <!-- Düzenle Butonu -->
+        <a href="{{ url_for('views.edit_note', note_id=note.id) }}" 
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-sm hover:shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Düzenle
+        </a>
+
+        <!-- Toggle Butonu -->
+        <form action="{{ url_for('views.toggle_note', note_id=note.id) }}" method="post" class="inline">
+          <input type="hidden" name="default_mode" value="1">
+          <button type="submit" 
+                  class="inline-flex items-center gap-2 px-5 py-2.5 font-semibold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md
+                         {% if note.completed %}
+                         bg-gray-100 text-gray-700 hover:bg-gray-200
+                         {% else %}
+                         bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200
+                         {% endif %}">
+            {% if note.completed %}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+              </svg>
+              Geri Al
+            {% else %}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              Tamamla
+            {% endif %}
+          </button>
+        </form>
+
+        <!-- Sil Butonu -->
+        <form action="{{ url_for('views.delete_note', note_id=note.id) }}" method="post"
+              onsubmit="return confirm('Bu görevi silmek istediğinizden emin misiniz?');" class="inline">
+          <input type="hidden" name="default_mode" value="1">
+          <button type="submit" 
+                  class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-all duration-300 shadow-sm hover:shadow-md border border-red-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            Sil
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
