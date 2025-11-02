@@ -41,18 +41,18 @@
             
             <!-- Gradient Overlay (Hover Effect) -->
             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
-                        {% if note.note_color == 'green' %} bg-gradient-to-br from-emerald-500/10 to-green-500/5
-                        {% elif note.note_color == 'orange' %} bg-gradient-to-br from-amber-500/10 to-yellow-500/5
-                        {% elif note.note_color == 'red' %} bg-gradient-to-br from-rose-500/10 to-red-500/5
+                        {% if note.color == 'green' %} bg-gradient-to-br from-emerald-500/10 to-green-500/5
+                        {% elif note.color == 'orange' %} bg-gradient-to-br from-amber-500/10 to-yellow-500/5
+                        {% elif note.color == 'red' %} bg-gradient-to-br from-rose-500/10 to-red-500/5
                         {% else %} bg-gradient-to-br from-purple-500/10 to-indigo-500/5 {% endif %}">
             </div>
 
             <!-- Üst Gradient Bar - Daha Kalın ve Parlak -->
             <div class="h-2 w-full relative overflow-hidden">
               <div class="absolute inset-0
-                          {% if note.note_color == 'green' %} bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-400
-                          {% elif note.note_color == 'orange' %} bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400
-                          {% elif note.note_color == 'red' %} bg-gradient-to-r from-rose-400 via-red-500 to-rose-400
+                          {% if note.color == 'green' %} bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-400
+                          {% elif note.color == 'orange' %} bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400
+                          {% elif note.color == 'red' %} bg-gradient-to-r from-rose-400 via-red-500 to-rose-400
                           {% else %} bg-gradient-to-r from-purple-400 via-indigo-500 to-purple-400 {% endif %}">
               </div>
               <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
@@ -112,15 +112,15 @@
               <!-- Renk İndikatörü -->
               <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full
-                            {% if note.note_color == 'green' %} bg-green-500
-                            {% elif note.note_color == 'orange' %} bg-yellow-500
-                            {% elif note.note_color == 'red' %} bg-red-500
+                            {% if note.color == 'green' %} bg-green-500
+                            {% elif note.color == 'orange' %} bg-yellow-500
+                            {% elif note.color == 'red' %} bg-red-500
                             {% else %} bg-purple-500 {% endif %}">
                 </div>
                 <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  {% if note.note_color == 'green' %} Yeni Oluşturuldu
-                  {% elif note.note_color == 'orange' %} Biraz Zaman Geçti
-                  {% elif note.note_color == 'red' %} Uzun Zaman Önce
+                  {% if note.color == 'green' %} Yeni Oluşturuldu
+                  {% elif note.color == 'orange' %} Biraz Zaman Geçti
+                  {% elif note.color == 'red' %} Uzun Zaman Önce
                   {% else %} Normal {% endif %}
                 </span>
               </div>
@@ -169,9 +169,9 @@
 
             <!-- Alt Gölge Efekti -->
             <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r 
-                        {% if note.note_color == 'green' %} from-emerald-500/20 via-green-500/40 to-emerald-500/20
-                        {% elif note.note_color == 'orange' %} from-amber-500/20 via-yellow-500/40 to-amber-500/20
-                        {% elif note.note_color == 'red' %} from-rose-500/20 via-red-500/40 to-rose-500/20
+                        {% if note.color == 'green' %} from-emerald-500/20 via-green-500/40 to-emerald-500/20
+                        {% elif note.color == 'orange' %} from-amber-500/20 via-yellow-500/40 to-amber-500/20
+                        {% elif note.color == 'red' %} from-rose-500/20 via-red-500/40 to-rose-500/20
                         {% else %} from-purple-500/20 via-indigo-500/40 to-purple-500/20 {% endif %} 
                         opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             </div>

@@ -19,9 +19,9 @@
     
     <!-- Üst Gradient Bar -->
     <div class="h-2 w-full
-                {% if note.color == 'green' %} bg-gradient-to-r from-emerald-400 to-green-500
-                {% elif note.color == 'orange' %} bg-gradient-to-r from-amber-400 to-orange-500
-                {% elif note.color == 'red' %} bg-gradient-to-r from-rose-400 to-red-500
+                {% if color == 'green' %} bg-gradient-to-r from-emerald-400 to-green-500
+                {% elif color == 'orange' %} bg-gradient-to-r from-amber-400 to-orange-500
+                {% elif color == 'red' %} bg-gradient-to-r from-rose-400 to-red-500
                 {% else %} bg-gradient-to-r from-purple-400 to-indigo-500 {% endif %}">
     </div>
 
@@ -51,15 +51,15 @@
         <!-- Sağ: Öncelik -->
         <div class="flex items-center gap-2">
           <div class="w-3 h-3 rounded-full
-                      {% if note.color == 'green' %} bg-green-500
-                      {% elif note.color == 'orange' %} bg-orange-500
-                      {% elif note.color == 'red' %} bg-red-500
+                      {% if color == 'green' %} bg-green-500
+                      {% elif color == 'orange' %} bg-orange-500
+                      {% elif color == 'red' %} bg-red-500
                       {% else %} bg-purple-500 {% endif %}">
           </div>
           <span class="text-sm font-medium text-gray-600">
-            {% if note.color == 'green' %} Yeni Oluşturuldu
-            {% elif note.color == 'orange' %} Biraz Zaman Geçti
-            {% elif note.color == 'red' %} Uzun Zaman Önce
+            {% if color == 'green' %} Yeni Oluşturuldu
+            {% elif color == 'orange' %} Biraz Zaman Geçti
+            {% elif color == 'red' %} Uzun Zaman Önce
             {% else %} Normal {% endif %}
           </span>
         </div>

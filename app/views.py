@@ -139,7 +139,7 @@ def gorevler():
             'id': note.id,
             'title': note.title,
             'time_passed': time_passed,
-            'note_color': color,
+            'color': color,
             'completed': note.completed
         })
     # color rank: daha küçük = daha üstte
@@ -151,15 +151,15 @@ def gorevler():
     }
 
     # Filtreleme / sıralama
-    notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']])
+    notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']])
 
 
     if status_filter == 'active':
         # En eski en üstte
-        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']], reverse=True)
+        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']], reverse=True)
     else:
         # En yeni en üstte
-        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']])
+        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']])
 
     return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
 
@@ -182,7 +182,30 @@ def delete_note(note_id):
 def task_details(note_id):
     note = Note.query.get_or_404(note_id)
     # burada gerekirse time_passed hesaplamasını güncelle
-    return render_template('task_detail.html', note=note)
+    note_date = note.date
+    if note_date.tzinfo is None:
+            note_date = note_date.replace(tzinfo=pytz.utc)
+    delta = datetime.now(pytz.utc) - note_date
+    seconds = int(delta.total_seconds())
+        
+        
+    if seconds < 60:
+            time_passed =  f"{seconds} saniye önce"
+            color = "green"
+
+    elif seconds < 3600: # dakika
+            time_passed = f"{seconds // 60} dakika önce"
+            color = "orange"
+
+    elif seconds < 86400: # saat
+            time_passed = f"{seconds // 3600} saat önce"
+            color = "red"
+
+    else:  # gün
+            time_passed = f"{seconds // 86400} gün önce"
+            color = "brown"
+    
+    return render_template('task_detail.html', note=note,color=color)
 @views.route('/note/<int:note_id>/toggle', methods=['POST'])
 @login_required
 def toggle_note(note_id):
