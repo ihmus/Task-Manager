@@ -9,65 +9,54 @@ import json
 views = Blueprint('views', __name__)
 
 
-@views.route('/', methods=['GET', 'POST'])
+@views.route('/', methods=['GET'])
 @login_required
 def home():
-    ##############################################
-    #              Not Ekleme Kısmı              #
-    ##############################################
+    default_mode = request.args.get('default_mode', '1', type=int)
+    notes = Note.query.filter_by(user_id=current_user.id).order_by(Note.date.desc()).all()
+    return render_template('index.html', notes=notes, default_mode=default_mode)
 
-    if request.method == 'POST': 
-        note = request.form.get('note')# Html üzerinden notu al 
 
-        if len(note) < 1:
-            flash('Note is too short!', category='error') 
-        else:
-            new_note = Note(title=note, user_id=current_user.id)  #not için şema hazırla
-            db.session.add(new_note) # Databaseye notu ekle
-            db.session.commit()
-            flash('Note added!', category='success')
-            return redirect(url_for('views.home'))
-
-    ################################################
-    #    Mevcut Kullanıcı notlarıyla İşlem         #
-    ################################################
-    notes_with_time = []
-    for note in current_user.notes:
-        note_date = note.date
-        if note_date.tzinfo is None:
-            # naive ise UTC yap
-            note_date = note_date.replace(tzinfo=pytz.utc)
-        delta = datetime.now(pytz.utc) - note_date
-        seconds = int(delta.total_seconds())
-        if seconds < 60:
-            time_passed = f"{seconds} seconds ago"
-            note.color = "green"
-        elif seconds < 3600:
-            time_passed = f"{seconds // 60} minutes ago"
-            note.color = "orange"
-        elif seconds < 86400:
-            time_passed = f"{seconds // 3600} hours ago"
-            note.color = "red"
-        else:
-            time_passed = f"{seconds // 86400} days ago"
-            note.color = "brown"
-
-        notes_with_time.append({
-            'id': note.id,
-            'title': note.title,
-            'time_passed': time_passed,
-            'color':note.color,
-        })
-
-    return render_template("index.html",notes=notes_with_time)
-
-@views.route('/calisanlar', methods=['GET', 'POST'])
+# Yeni görev oluşturma işlemi
+@views.route('/create', methods=['POST'])
 @login_required
-def calisanlar():
+def create_note():
+    note_title = request.form.get('title')
+    description = request.form.get('description')
+    
+    # Validasyon
+    if not note_title or len(note_title) < 1:
+        flash('Görev başlığı boş olamaz!', 'error')
+        return redirect(url_for('views.new_note'))
+    
+    if len(note_title) > 200:
+        flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
+        return redirect(url_for('views.new_note'))
+    
+    # Yeni not oluştur
+    new_note = Note(
+        title=note_title,
+        description=description if description else None,
+        user_id=current_user.id
+    )
+    
+    try:
+        db.session.add(new_note)
+        db.session.commit()
+        flash('Görev başarıyla oluşturuldu!', 'success')
+        return redirect(url_for('views.home'))
+    except Exception as e:
+        db.session.rollback()
+        flash('Görev oluşturulurken bir hata oluştu.', 'error')
+        return redirect(url_for('views.new_note'))
+
+@views.route('/my-profile', methods=['GET', 'POST'])
+@login_required
+def profile():
     """Profilim / Çalışan listesi"""
     # Çalışan listesi veya profil bilgisi
     notes_with_time = []
-    return render_template("calisanlar.html", notes=notes_with_time, active_page='calisanlar')
+    return render_template("profile.html", notes=notes_with_time, active_page='profile')
 
 @views.route('/edit/<int:note_id>', methods=['GET'])
 @login_required
@@ -127,34 +116,50 @@ def gorevler():
             note_date = note_date.replace(tzinfo=pytz.utc)
         delta = datetime.now(pytz.utc) - note_date
         seconds = int(delta.total_seconds())
+        
+        
+        if seconds < 60:
+            time_passed =  f"{seconds} saniye önce"
+            color = "green"
 
-        # Zaman kontrolü
-        if seconds < 86400:
-            time_passed = f"{seconds // 3600} saat önce" if seconds >= 3600 else f"{seconds // 60} dakika önce" if seconds >= 60 else f"{seconds} saniye önce"
-            note.color = "green"  # aktif
-        else:
+        elif seconds < 3600: # dakika
+            time_passed = f"{seconds // 60} dakika önce"
+            color = "orange"
+
+        elif seconds < 86400: # saat
+            time_passed = f"{seconds // 3600} saat önce"
+            color = "red"
+
+        else:  # gün
             time_passed = f"{seconds // 86400} gün önce"
-            note.color = "red"  # pasif
+            color = "brown"
 
-        # Yüzdelik için örnek değer
-        note.percentage = 50  # placeholder, ileride gerçek değer ile değiştir
 
         notes_with_time.append({
             'id': note.id,
             'title': note.title,
             'time_passed': time_passed,
-            'color': note.color,
-            'percentage': note.percentage,
+            'note_color': color,
             'completed': note.completed
         })
+    # color rank: daha küçük = daha üstte
+    color_rank = {
+        'green': 1,
+        'orange': 2,
+        'red': 3,
+        'brown': 4
+    }
 
-    # Filtreleme
+    # Filtreleme / sıralama
+    notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']])
+
+
     if status_filter == 'active':
-        # Aktifler önce
-        notes_with_time = [n for n in notes_with_time if n['color'] != 'red'] + [n for n in notes_with_time if n['color'] == 'red']
+        # En eski en üstte
+        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']], reverse=True)
     else:
-        # Pasifler önce
-        notes_with_time = [n for n in notes_with_time if n['color'] == 'red'] + [n for n in notes_with_time if n['color'] != 'red']
+        # En yeni en üstte
+        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['note_color']])
 
     return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
 
