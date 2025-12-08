@@ -101,3 +101,5 @@ class TestAuth:
         # Sonra çıkış yap
         response = client.get('/logout', follow_redirects=True)
         assert response.status_code == 200
+
+        #not ekledim 
