@@ -7,7 +7,13 @@ from . import db
 import pytz
 import json
 from sqlalchemy.orm import joinedload
-
+import os
+from flask import request, jsonify, render_template, flash, redirect, url_for, current_app
+from werkzeug.utils import secure_filename
+import os
+from .models import User, Note, Attachment  # Attachment varsa, yoksa bu satırı ayarla
+from .utils import role_required
+from . import db
 
 views = Blueprint('views', __name__)
 
@@ -78,6 +84,7 @@ def user_admin_edit(user_id):
 
     # GET: formu göster
     return render_template('admin_edit_user.html', user=user)
+# Admin only: assign task via POST (JSON or form)
 @views.route('/admin/assign_task', methods=['POST'])
 @login_required
 @role_required('admin')
@@ -196,23 +203,11 @@ def create_note():
     # Validasyon
     if not note_title or len(note_title) < 1:
         flash('Görev başlığı boş olamaz!', 'error')
-<<<<<<< HEAD
         
     
     if len(note_title) > 200:
         flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
         
-=======
-        # return redirect(url_for('views.new_note'))
-        return redirect(url_for('views.home'))
-
-    
-    if len(note_title) > 200:
-        flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
-        # return redirect(url_for('views.new_note'))
-        return redirect(url_for('views.home'))
-
->>>>>>> d807c4a0283105aec3f4895733d84992367748e2
     
     # Yeni not oluştur
     new_note = Note(
