@@ -196,11 +196,23 @@ def create_note():
     # Validasyon
     if not note_title or len(note_title) < 1:
         flash('Görev başlığı boş olamaz!', 'error')
+<<<<<<< HEAD
         
     
     if len(note_title) > 200:
         flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
         
+=======
+        # return redirect(url_for('views.new_note'))
+        return redirect(url_for('views.home'))
+
+    
+    if len(note_title) > 200:
+        flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
+        # return redirect(url_for('views.new_note'))
+        return redirect(url_for('views.home'))
+
+>>>>>>> d807c4a0283105aec3f4895733d84992367748e2
     
     # Yeni not oluştur
     new_note = Note(
