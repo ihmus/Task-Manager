@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">Kullanıcı Düzenle</h2>
+
+  <form method="post" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-gray-700">İsim</label>
+      <input name="first_name" value="{{ user.first_name }}" class="mt-1 block w-full rounded border px-3 py-2">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Email</label>
+      <input value="{{ user.email }}" disabled class="mt-1 block w-full rounded border px-3 py-2 bg-gray-50">
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Rol</label>
+      <select name="role" class="mt-1 block w-full rounded border px-3 py-2">
+        <option value="user" {% if user.role=='user' %}selected{% endif %}>User</option>
+        <option value="moderator" {% if user.role=='moderator' %}selected{% endif %}>Moderator</option>
+        <option value="admin" {% if user.role=='admin' %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+
+    <div class="flex gap-2 justify-end">
+      <a href="{{ url_for('views.users_list') }}" class="px-4 py-2 rounded border bg-gray-100">Geri</a>
+      <button type="submit" class="px-4 py-2 rounded bg-indigo-600 text-white">Kaydet</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
