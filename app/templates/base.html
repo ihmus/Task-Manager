@@ -31,6 +31,10 @@
           <a href="{{ url_for('views.home') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'home' %}border-b-2 border-white pb-1{% endif %}">Ana Sayfa</a>
           <a href="{{ url_for('views.profile') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'profile' %}border-b-2 border-white pb-1{% endif %}">Profilim</a>
           <a href="{{ url_for('views.gorevler') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'gorevler' %}border-b-2 border-white pb-1{% endif %}">Görevler</a>
+          <a href="{{ url_for('views.users_list') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'pano' %}border-b-2 border-white pb-1{% endif %}">Pano</a>
+          {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('views.admin_panel') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'admin_panel' %}border-b-2 border-white pb-1{% endif %}">Admin Panel</a>
+          {% endif %}
         </div>
 
         <a href="{{ url_for('auth.logout') }}" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium">Çıkış</a>

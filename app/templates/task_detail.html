@@ -121,6 +121,7 @@
         </form>
 
         <!-- Sil Butonu -->
+        {% if current_user.role == 'admin' %}
         <form action="{{ url_for('views.delete_note', note_id=note.id) }}" method="post"
               onsubmit="return confirm('Bu görevi silmek istediğinizden emin misiniz?');" class="inline">
           <input type="hidden" name="default_mode" value="1">
@@ -132,6 +133,7 @@
             Sil
           </button>
         </form>
+        {% endif %}
       </div>
 
     </div>

@@ -63,6 +63,9 @@
               
               <!-- Durum Rozeti - Daha Şık -->
               <div class="absolute right-5 top-5 z-10">
+                {% if current_user.role == 'admin' %}
+                    <span class="text-sm text-gray-500">Görev: {{ note.owner }}</span>
+                {% endif %}
                 {% if note.completed %}
                   <div class="flex items-center gap-2 bg-gradient-to-r from-green-300 to-emerald-400 text-emerald-900 text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-300 shadow-sm">  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -151,6 +154,7 @@
                   </form>
 
                   <!-- Delete Button -->
+                  {% if current_user.role == 'admin' %}
                   <form action="{{ url_for('views.delete_note', note_id=note.id) }}" method="post"
                         onsubmit="return confirm('Bu görevi silmek istediğinizden emin misiniz?');">
                     <input type="hidden" name="default_mode" value="{{ default_mode }}">
@@ -162,6 +166,7 @@
                       <span>Sil</span>
                     </button>
                   </form>
+                  {% endif %}
                 </div>
               </div>
 

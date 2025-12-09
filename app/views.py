@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, abort
 from flask_login import login_required, current_user
 from .models import Note,User
 from .utils import role_required
 from datetime import datetime
 from . import db
 import pytz
-import json
 from sqlalchemy.orm import joinedload
 import os
 from flask import request, jsonify, render_template, flash, redirect, url_for, current_app
@@ -16,51 +15,96 @@ from .utils import role_required
 from . import db
 
 views = Blueprint('views', __name__)
-
 @views.route('/admin')
 @login_required
 @role_required('admin')
 def admin_panel():
-    # sadece admin görebilir
-    users = User.query.all()
-    return render_template('admin.html', users=users)
-
-@views.route('/my-card')
-@login_required
-def my_card():
-    user = current_user
-    notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
-    recent_notes = notes[:5]
-    return render_template('my_card.html', user=user, recent_notes=recent_notes)
-@views.route('/users')
-@login_required
-@role_required('admin')  # sadece admin görsün istersen
-def users_list():
-    # pagination (opsiyonel)
     page = request.args.get('page', 1, type=int)
     per_page = 12
-
-    # Eager load ile notları çek (son 3 notu göstermek için)
-    users = User.query.options(joinedload(User.notes)).order_by(User.first_name).paginate(page=page, per_page=per_page, error_out=False)
-
-    # cards için özet verisi hazırla
+    users = User.query.options(joinedload(User.notes)) \
+        .order_by(User.first_name) \
+        .paginate(page=page, per_page=per_page, error_out=False)
     user_cards = []
     for user in users.items:
         notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
-        recent_notes = notes[:3]  # son 3 not
-        total_notes = len(notes)
         completed = sum(1 for n in notes if n.completed)
+        recent_notes = notes[:3]
+        total_notes = len(notes)
         user_cards.append({
             'id': user.id,
             'name': user.first_name or user.email,
-            'role': getattr(user, 'role', 'user'),
-            'avatar_url': None,     # istersen avatar kolonu ekleyebilirsin
+            'role': user.role,
+            'total_notes': total_notes,
+            'completed': completed,
+            'recent_notes': recent_notes
+        })
+    # sadece admin görebilir
+    users = User.query.all()
+    return render_template('admin.html', users=users, user_cards=user_cards,active_page='admin_panel')
+@views.route('/users')
+@login_required
+#@role_required('admin')  # sadece admin görsün istersen
+def users_list():
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+
+    users = User.query.options(joinedload(User.notes)) \
+        .order_by(User.first_name) \
+        .paginate(page=page, per_page=per_page, error_out=False)
+
+    user_cards = []
+    for user in users.items:
+
+        # --------- ROLE FİLTRESİ ---------
+        # Eğer giriş yapan admin değilse ve listedeki kişi admin ise gösterme
+        if current_user.role != "admin" and user.role == "admin":
+            continue
+        # ---------------------------------
+
+        notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
+        recent_notes = notes[:3]
+        total_notes = len(notes)
+        completed = sum(1 for n in notes if n.completed)
+
+        user_cards.append({
+            'id': user.id,
+            'name': user.first_name or user.email,
+            'role': user.role,
             'total_notes': total_notes,
             'completed': completed,
             'recent_notes': recent_notes
         })
 
-    return render_template('users_list.html', users=users, user_cards=user_cards)
+    return render_template('users_list.html', users=users, user_cards=user_cards,active_page='pano')
+@views.route("/user/<int:user_id>")
+@login_required
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+
+    # Eğer giriş yapan admin değilse
+    if current_user.role != 'admin':
+
+        # Kendi profiline erişebilir
+        if current_user.id == user.id:
+            pass
+
+        # Ama admin kullanıcı profiline erişemez
+        elif user.role == 'admin':
+            return abort(403)
+
+        # Admin olmayan başka kullanıcı profiline erişebilir
+        # (bu istenmiyorsa ek olarak kontrol ekleyebilirim)
+
+    total_notes = Note.query.filter_by(user_id=user.id).count()
+    recent_notes = Note.query.filter_by(user_id=user.id).order_by(Note.date.desc()).limit(10)
+
+    return render_template(
+        "user_profile.html",
+        user=user,
+        total_notes=total_notes,
+        recent_notes=recent_notes
+    )
+
 @views.route('/admin/user/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
@@ -285,8 +329,14 @@ def gorevler():
     status_filter = request.args.get('status', 'active')  # default aktif
     default_mode = int(request.args.get('default_mode', 1))  # default 1
     notes_with_time = []
+    # --- ROLE GÖRE NOTE SEÇİMİ ---
+    if hasattr(current_user, "role") and current_user.role == "admin":
+        notes = Note.query.all()  # admin tüm notları görebilir
+    else:
+        notes = current_user.notes  # normal user sadece kendi notlarını görür
+    # --------------------------------
 
-    for note in current_user.notes:
+    for note in notes:
         note_date = note.date
         if note_date.tzinfo is None:
             note_date = note_date.replace(tzinfo=pytz.utc)
@@ -316,7 +366,8 @@ def gorevler():
             'title': note.title,
             'time_passed': time_passed,
             'color': color,
-            'completed': note.completed
+            'completed': note.completed,
+            'owner': note.owner.first_name if note.owner else "Bilinmiyor"
         })
     # color rank: daha küçük = daha üstte
     color_rank = {

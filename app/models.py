@@ -31,3 +31,9 @@ class User(db.Model, UserMixin):
 
     def has_role(self, *roles):
         return self.role in roles
+    @property
+    def owner_name(self):
+        """Kolay kullanım için: sahibi adı yoksa e-posta veya Bilinmiyor döner."""
+        if getattr(self, "owner", None):
+            return self.owner.first_name or self.owner.email or "Bilinmiyor"
+        return "Bilinmiyor"
