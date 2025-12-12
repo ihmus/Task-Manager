@@ -331,14 +331,21 @@ def gorevler():
     notes_with_time = []
 
     # --- ROLE & USER FİLTRE ---
-    if current_user.role == "admin":
-        if user_id:
-            notes = Note.query.filter_by(user_id=user_id).all()
-        else:
-            notes = Note.query.all()
-    else:
-        notes = current_user.notes
+    # if current_user.role == "admin":
+    #     if user_id:
+    #         notes = Note.query.filter_by(user_id=user_id).all()
+    #     else:
+    #         notes = Note.query.all()
+    # else:
+    #     notes = current_user.notes
     # -------------------------
+    if user_id:
+        notes = Note.query.filter_by(user_id=user_id).all()
+    else:
+        if current_user.role == "admin":
+            notes = Note.query.all()
+        else:
+            notes = Note.query.filter_by(user_id=current_user.id).all()
 
     for note in notes:
         if status_filter == 'active' and note.completed:
