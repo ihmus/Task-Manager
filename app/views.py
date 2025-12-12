@@ -281,9 +281,9 @@ def profile():
 @login_required
 def edit_note(note_id):
     note = Note.query.get_or_404(note_id)
-    
+    user = User.query.get_or_404(current_user.id)
     # Kullanıcının kendi notunu düzenlemesini sağla
-    if note.user_id != current_user.id:
+    if note.user_id != current_user.id and user.role != 'admin':
         flash('Bu görevi düzenleme yetkiniz yok.', 'error')
         return redirect(url_for('views.home'))
     
