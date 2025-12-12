@@ -93,7 +93,6 @@ def user_profile(user_id):
             return abort(403)
 
         # Admin olmayan başka kullanıcı profiline erişebilir
-        # (bu istenmiyorsa ek olarak kontrol ekleyebilirim)
 
     total_notes = Note.query.filter_by(user_id=user.id).count()
     recent_notes = Note.query.filter_by(user_id=user.id).order_by(Note.date.desc()).limit(10)
@@ -325,41 +324,40 @@ def update_note(note_id):
 @views.route('/gorevler', methods=['GET', 'POST'])
 @login_required
 def gorevler():
-    """Görevler sayfası"""
-    status_filter = request.args.get('status', 'active')  # default aktif
-    default_mode = int(request.args.get('default_mode', 1))  # default 1
+    status_filter = request.args.get('status', 'active')
+    default_mode = int(request.args.get('default_mode', 1))
+    user_id = request.args.get('user_id', type=int)
+
     notes_with_time = []
-    # --- ROLE GÖRE NOTE SEÇİMİ ---
-    if hasattr(current_user, "role") and current_user.role == "admin":
-        notes = Note.query.all()  # admin tüm notları görebilir
+
+    # --- ROLE & USER FİLTRE ---
+    if current_user.role == "admin":
+        if user_id:
+            notes = Note.query.filter_by(user_id=user_id).all()
+        else:
+            notes = Note.query.all()
     else:
-        notes = current_user.notes  # normal user sadece kendi notlarını görür
-    # --------------------------------
+        notes = current_user.notes
+    # -------------------------
 
     for note in notes:
-        note_date = note.date
-        if note_date.tzinfo is None:
-            note_date = note_date.replace(tzinfo=pytz.utc)
+        if status_filter == 'active' and note.completed:
+            continue
+        if status_filter == 'passive' and not note.completed:
+            continue
+
+        note_date = note.date.replace(tzinfo=pytz.utc) if note.date.tzinfo is None else note.date
         delta = datetime.now(pytz.utc) - note_date
         seconds = int(delta.total_seconds())
-        
-        
+
         if seconds < 60:
-            time_passed =  f"{seconds} saniye önce"
-            color = "green"
-
-        elif seconds < 3600: # dakika
-            time_passed = f"{seconds // 60} dakika önce"
-            color = "orange"
-
-        elif seconds < 86400: # saat
-            time_passed = f"{seconds // 3600} saat önce"
-            color = "red"
-
-        else:  # gün
-            time_passed = f"{seconds // 86400} gün önce"
-            color = "brown"
-
+            time_passed, color = f"{seconds} saniye önce", "green"
+        elif seconds < 3600:
+            time_passed, color = f"{seconds // 60} dakika önce", "orange"
+        elif seconds < 86400:
+            time_passed, color = f"{seconds // 3600} saat önce", "red"
+        else:
+            time_passed, color = f"{seconds // 86400} gün önce", "brown"
 
         notes_with_time.append({
             'id': note.id,
@@ -369,26 +367,13 @@ def gorevler():
             'completed': note.completed,
             'owner': note.owner.first_name if note.owner else "Bilinmiyor"
         })
-    # color rank: daha küçük = daha üstte
-    color_rank = {
-        'green': 1,
-        'orange': 2,
-        'red': 3,
-        'brown': 4
-    }
 
-    # Filtreleme / sıralama
-    notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']])
-
-
-    if status_filter == 'active':
-        # En eski en üstte
-        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']], reverse=True)
-    else:
-        # En yeni en üstte
-        notes_with_time = sorted(notes_with_time, key=lambda n: color_rank[n['color']])
-
-    return render_template("gorevler.html", notes=notes_with_time, active_page='gorevler',default_mode=default_mode)
+    return render_template(
+        "gorevler.html",
+        notes=notes_with_time,
+        default_mode=default_mode,
+        active_page='gorevler'
+    )
 
 @views.route('/delete-note/<int:note_id>', methods=['POST'])
 @login_required
