@@ -7,13 +7,13 @@ from . import db
 import pytz
 from sqlalchemy.orm import joinedload
 import os
-from flask import request, jsonify, render_template, flash, redirect, url_for, current_app
+from flask import send_from_directory, request, jsonify, render_template, flash, redirect, url_for, current_app
 from werkzeug.utils import secure_filename
 import os
 from .models import User, Note, Attachment  # Attachment varsa, yoksa bu satırı ayarla
 from .utils import role_required
 from . import db
-
+UPLOAD_FOLDER = "uploads"
 views = Blueprint('views', __name__)
 @views.route('/admin')
 @login_required
@@ -103,7 +103,37 @@ def user_profile(user_id):
         total_notes=total_notes,
         recent_notes=recent_notes
     )
+@views.route('/download/attachment/<int:attachment_id>')
+@login_required
+def download_attachment(attachment_id):
+    print("🔥 DOWNLOAD ROUTE ÇALIŞTI:", attachment_id)
+    attachment = Attachment.query.get_or_404(attachment_id)
+    note = attachment.note
 
+    # 🔐 Yetki kontrolü
+    if current_user.role != 'admin' and note.user_id != current_user.id:
+        abort(403)
+
+    # 🔴 TEK KAYNAK: config'ten al
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    file_path = os.path.join(upload_folder, attachment.stored_name)
+
+    # Debug (istersen sonra kaldır)
+    print("DOSYA:", attachment.stored_name)
+    print("UPLOAD_FOLDER:", upload_folder)
+    print("FULL PATH:", file_path)
+    print("VAR MI:", os.path.exists(file_path))
+
+    # Dosya gerçekten yoksa net hata ver
+    if not os.path.exists(file_path):
+        abort(404)
+
+    return send_from_directory(
+        upload_folder,                  # 🔴 BURASI ÖNEMLİ
+        attachment.stored_name,
+        as_attachment=True,
+        download_name=attachment.filename
+    )
 @views.route('/admin/user/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
@@ -185,9 +215,9 @@ def admin_assign_task():
                 # benzersiz stored_name oluştur
                 import uuid
                 stored_name = f"{uuid.uuid4().hex}{'.' + filename.rsplit('.',1)[1].lower() if '.' in filename else ''}"
-                upload_folder = current_app.config.get('UPLOAD_FOLDER') or os.path.join(os.path.abspath(os.getcwd()), 'uploads')
-                os.makedirs(upload_folder, exist_ok=True)
+                upload_folder = current_app.config['UPLOAD_FOLDER']
                 dest = os.path.join(upload_folder, stored_name)
+                uploaded.save(dest)
                 uploaded.save(dest)
                 size = os.path.getsize(dest)
 
@@ -366,15 +396,15 @@ def gorevler():
         else:
             time_passed, color = f"{seconds // 86400} gün önce", "brown"
 
-        notes_with_time.append({
-            'id': note.id,
-            'title': note.title,
-            'time_passed': time_passed,
-            'color': color,
-            'completed': note.completed,
-            'owner': note.owner.first_name if note.owner else "Bilinmiyor"
-        })
-
+        # notes_with_time.append({
+        #     'id': note.id,
+        #     'title': note.title,
+        #     'time_passed': time_passed,
+        #     'color': color,
+        #     'completed': note.completed,
+        #     'owner': note.owner.first_name if note.owner else "Bilinmiyor"
+        # })
+        notes_with_time.append(note) 
     return render_template(
         "gorevler.html",
         notes=notes_with_time,

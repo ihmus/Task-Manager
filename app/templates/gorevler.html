@@ -64,7 +64,7 @@
               <!-- Durum Rozeti - Daha Şık -->
               <div class="absolute right-5 top-5 z-10">
                 {% if current_user.role == 'admin' %}
-                    <span class="text-sm text-gray-500">Görev: {{ note.owner }}</span>
+                    <span class="text-sm text-gray-500">Görev: {{ note.owner.first_name if note.owner else "Bilinmiyor" }}</span>
                 {% endif %}
                 {% if note.completed %}
                   <div class="flex items-center gap-2 bg-gradient-to-r from-green-300 to-emerald-400 text-emerald-900 text-xs font-medium px-4 py-1.5 rounded-full border border-emerald-300 shadow-sm">  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -86,11 +86,32 @@
                  aria-label="Görev detayına git"
                  style="text-decoration: none; color: inherit;">
                 
-                <h2 class="text-2xl font-extrabold text-gray-900 mb-4 pr-28 leading-tight group-hover:bg-gradient-to-r 
-           group-hover:from-emerald-500 group-hover:to-teal-500 
-           group-hover:bg-clip-text transition-all duration-300">
-  {{ note.title[:21] }}{% if note.title|length > 21 %}...{% endif %}
-</h2>
+                 <h2 class="text-2xl font-extrabold text-gray-900 leading-tight
+             group-hover:bg-gradient-to-r 
+             group-hover:from-emerald-500 
+             group-hover:to-teal-500 
+             group-hover:bg-clip-text transition-all duration-300">
+    {{ note.title[:21] }}{% if note.title|length > 21 %}...{% endif %}{{ note.attachments|length }}
+  </h2>
+
+  <!-- Dosya İkonları -->
+    {% if note.attachments|length > 0 %}
+    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full ml-1">
+  {{ note.attachments|length }}
+</span>
+      <div class="flex items-center gap-1 mt-1">
+        {% for file in note.attachments %}
+          <a href="{{ url_for('views.download_attachment', attachment_id=file.id) }}"
+            class="text-indigo-500 hover:text-indigo-700 transition"
+            title="{{ file.filename }}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+            </svg>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
 
 
                 <!-- Açıklama - Daha İyi Okunabilirlik -->
