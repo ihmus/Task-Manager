@@ -81,26 +81,49 @@ def users_list():
 def user_profile(user_id):
     user = User.query.get_or_404(user_id)
 
-    # Eğer giriş yapan admin değilse
+    # Yetki kontrolü
     if current_user.role != 'admin':
+        if current_user.id != user.id and user.role == 'admin':
+            abort(403)
 
-        # Kendi profiline erişebilir
-        if current_user.id == user.id:
-            pass
-
-        # Ama admin kullanıcı profiline erişemez
-        elif user.role == 'admin':
-            return abort(403)
-
-        # Admin olmayan başka kullanıcı profiline erişebilir
-
+    # 🔢 Görev sayıları
     total_notes = Note.query.filter_by(user_id=user.id).count()
-    recent_notes = Note.query.filter_by(user_id=user.id).order_by(Note.date.desc()).limit(10)
 
+    completed_task_count = Note.query.filter_by(
+        user_id=user.id,
+        completed=True
+    ).count()
+
+    uncompleted_notes_count = Note.query.filter_by(
+        user_id=user.id,
+        completed=False
+    ).count()
+    total_tasks_count = completed_task_count + uncompleted_notes_count
+
+    completed_notes = Note.query.filter_by(
+        user_id=user.id,
+        completed=True
+    ).order_by(Note.date.desc()).all()
+
+    uncompleted_notes = Note.query.filter_by(
+        user_id=user.id,
+        completed=False
+    ).order_by(Note.date.desc()).all()
+
+    recent_notes = Note.query.filter_by(
+        user_id=user.id
+    ).order_by(Note.date.desc()).limit(10).all()
+    completion_percentage = (completed_task_count / total_tasks_count * 100) if total_tasks_count > 0 else 0
+    
     return render_template(
         "user_profile.html",
         user=user,
+        completion_percentage=completion_percentage,
         total_notes=total_notes,
+        completed_task_count=completed_task_count,
+        uncompleted_task_count=uncompleted_notes_count,
+        completed_notes=completed_notes,
+        uncompleted_notes=uncompleted_notes,
         recent_notes=recent_notes
     )
 @views.route('/download/attachment/<int:attachment_id>')
