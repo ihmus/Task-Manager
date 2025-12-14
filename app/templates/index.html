@@ -1,19 +1,51 @@
-{% extends "base.html" %}
-{% block title %}Yeni Görev Ekle{% endblock %}
-{% block content %}
-<div class="pt-24 px-6 max-w-4xl mx-auto h-screen overflow-y-auto">
-  
-  <!-- Başlık -->
-  <div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-900 mb-2">Yeni Görev Oluştur</h1>
-    <p class="text-gray-600">Yeni bir görev ekleyin ve takip etmeye başlayın</p>
+{% extends "base.html" %} {% block title %}Ana Sayfa{% endblock %} {% block
+content %}
+<div class="pt-32 px-6 max-w-5xl mx-auto min-h-screen pb-20">
+  <div class="bg-white rounded-2xl shadow-lg p-10 text-center">
+    <h1 class="text-4xl font-bold text-gray-800 mb-4">Hoş geldiniz 👋</h1>
+
+    <p class="text-2xl text-purple-700 font-semibold">
+      {{ current_user.first_name }} {{ current_user.last_name }}
+    </p>
+
+    <p class="text-gray-500 mt-6 mb-8">
+      Görevlerinizi üst menüden görüntüleyebilir, yeni görev eklemek için ilgili
+      sekmeyi kullanabilirsiniz.
+    </p>
+
+    <!-- 🔽 YENİ GÖREV EKLE BUTONU -->
+    <a
+      href="{{ url_for('views.new_task') }}"
+      class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        />
+      </svg>
+
+      Yeni Görev Ekle
+    </a>
   </div>
 
-  <!-- Form Kartı -->
-  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-    
-    <!-- Üst Gradient Bar -->
-    <div class="h-2 w-full bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500"></div>
+  <!-- ALT ALAN – SONRADAN DOLDURULUR -->
+  <!-- ALT TANITIM ALANI -->
+  <div
+    class="mt-16 bg-white rounded-2xl shadow-lg p-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
+  >
+    <!-- SOL METİN -->
+    <div>
+      <h2 class="text-3xl font-bold text-gray-800 mb-4">
+        Görevlerini Planla, Kontrolü Ele Al 🚀
+      </h2>
 
     <div class="p-8">
       <form method="POST" action="{{ url_for('views.create_note') }}" enctype="multipart/form-data" class="space-y-6">
@@ -91,38 +123,14 @@
       </form>
     </div>
 
-  </div>
-
-  <!-- İpucu Kartları -->
-  <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-    
-    <!-- İpucu 1 -->
-    <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
-      <div class="flex gap-3">
-        <svg class="w-6 h-6 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-        </svg>
-        <div>
-          <h3 class="text-sm font-bold text-blue-900 mb-1">Hızlı İpucu</h3>
-          <p class="text-sm text-blue-800">Görev başlığını kısa ve öz tutun. Detaylı bilgileri açıklama alanına yazabilirsiniz.</p>
-        </div>
-      </div>
+    <!-- SAĞ GÖRSEL -->
+    <div class="flex justify-center">
+      <img
+        src="{{ url_for('static', filename='images/task-management.png') }}"
+        alt="Task Management Illustration"
+        class="max-w-full h-auto rounded-xl"
+      />
     </div>
-
-    <!-- İpucu 2 -->
-    <div class="bg-purple-50 border border-purple-200 rounded-xl p-5">
-      <div class="flex gap-3">
-        <svg class="w-6 h-6 text-purple-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-        </svg>
-        <div>
-          <h3 class="text-sm font-bold text-purple-900 mb-1">Renk Sistemi</h3>
-          <p class="text-sm text-purple-800">Renkler görevin ne zaman oluşturulduğunu belirtir. Eski görevleri kolayca fark edebilirsiniz.</p>
-        </div>
-      </div>
-    </div>
-
   </div>
-
 </div>
 {% endblock %}
