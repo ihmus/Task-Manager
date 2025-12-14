@@ -1,4 +1,4 @@
-from flask import Flask,flash,redirect,url_for
+from flask import Flask,flash,redirect,url_for,request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
@@ -39,6 +39,13 @@ def create_app():
 
     @app.errorhandler(RequestEntityTooLarge)
     def handle_file_too_large(e):
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({
+                'error': 'file_too_large',
+                'message': 'Dosya boyutu en fazla 10 MB olabilir.'
+            }), 413
+
         flash('Dosya boyutu en fazla 10 MB olabilir.', 'error')
         return redirect(url_for('views.home'))
     return app
