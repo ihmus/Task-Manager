@@ -1,8 +1,14 @@
-{% extends "base.html" %} {% block title %}Ana Sayfa{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}Ana Sayfa{% endblock %}
+
+{% block content %}
 <div class="pt-32 px-6 max-w-5xl mx-auto min-h-screen pb-20">
+
+  <!-- ÜST KARŞILAMA KARTI -->
   <div class="bg-white rounded-2xl shadow-lg p-10 text-center">
-    <h1 class="text-4xl font-bold text-gray-800 mb-4">Hoş geldiniz 👋</h1>
+    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+      Hoş geldiniz 👋
+    </h1>
 
     <p class="text-2xl text-purple-700 font-semibold">
       {{ current_user.first_name }} {{ current_user.last_name }}
@@ -13,10 +19,15 @@ content %}
       sekmeyi kullanabilirsiniz.
     </p>
 
-    <!-- 🔽 YENİ GÖREV EKLE BUTONU -->
+    <!-- YENİ GÖREV EKLE BUTONU -->
     <a
       href="{{ url_for('views.new_task') }}"
-      class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5"
+      class="inline-flex items-center gap-2 px-8 py-3
+             bg-gradient-to-r from-indigo-600 to-purple-600
+             text-white font-bold rounded-lg
+             hover:from-indigo-700 hover:to-purple-700
+             transition-all duration-300 shadow-md hover:shadow-xl
+             transform hover:-translate-y-0.5"
     >
       <svg
         class="w-5 h-5"
@@ -31,106 +42,147 @@ content %}
           d="M12 6v6m0 0v6m0-6h6m-6 0H6"
         />
       </svg>
-
       Yeni Görev Ekle
     </a>
   </div>
 
-  <!-- ALT ALAN – SONRADAN DOLDURULUR -->
-  <!-- ALT TANITIM ALANI -->
-  <div
-    class="mt-16 bg-white rounded-2xl shadow-lg p-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center"
-  >
-    <!-- SOL METİN -->
-    <div>
-      <h2 class="text-3xl font-bold text-gray-800 mb-4">
+  <!-- ALT ANA ALAN -->
+  <div class="mt-16 bg-white rounded-2xl shadow-lg p-10">
+
+    <!-- ORTALANMIŞ METİN + FORM -->
+    <div class="max-w-2xl mx-auto text-center">
+
+      <h2 class="text-4xl font-extrabold text-gray-800 mb-8">
         Görevlerini Planla, Kontrolü Ele Al 🚀
       </h2>
 
-    <div class="p-8">
-      <form method="POST" action="{{ url_for('views.create_note') }}" enctype="multipart/form-data" class="space-y-6">
-        
-        <!-- Görev Başlığı -->
-        <div>
-          <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
-            Görev Başlığı <span class="text-red-500">*</span>
-          </label>
-          <input 
-            type="text" 
-            id="title" 
-            name="title" 
-            required
-            maxlength="200"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-lg"
-            placeholder="Örn: Proje sunumunu hazırla">
-          <p class="mt-2 text-xs text-gray-500">Maksimum 200 karakter</p>
-        </div>
+      <!-- FORM -->
+      <div class="p-8 text-left">
+        <form
+          method="POST"
+          action="{{ url_for('views.create_note') }}"
+          enctype="multipart/form-data"
+          class="space-y-6"
+        >
 
-        <!-- Açıklama -->
-        <div>
-          <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
-            Açıklama (İsteğe Bağlı)
-          </label>
-          <textarea 
-            id="description" 
-            name="description" 
-            rows="6"
-            maxlength="1000"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 resize-none"
-            placeholder="Görev hakkında detaylı bilgi ekleyin..."></textarea>
-          <p class="mt-2 text-xs text-gray-500">Maksimum 1000 karakter</p>
-        </div>
-        <!-- Dosya Ekle (Opsiyonel) -->
-        <div>
-          <label for="file" class="block text-sm font-semibold text-gray-700 mb-2">
-            Dosya Ekle (Opsiyonel)
-          </label>
+          <!-- Görev Başlığı -->
+          <div>
+            <label
+              for="title"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Görev Başlığı <span class="text-red-500">*</span>
+            </label>
 
-          <input
-            type="file"
-            id="file"
-            name="file"
-            class="block w-full text-sm text-gray-700
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-lg file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-indigo-50 file:text-indigo-700
-                  hover:file:bg-indigo-100
-                  transition">
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              maxlength="200"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                     focus:ring-2 focus:ring-indigo-500
+                     focus:border-indigo-500 transition-all duration-300 text-lg"
+              placeholder="Örn: Proje sunumunu hazırla"
+            />
 
-          <p class="mt-2 text-xs text-gray-500">
-            PDF, resim veya doküman ekleyebilirsiniz.
-          </p>
-        </div>
+            <p class="mt-2 text-xs text-gray-500">
+              Maksimum 200 karakter
+            </p>
+          </div>
 
+          <!-- Açıklama -->
+          <div>
+            <label
+              for="description"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Açıklama (İsteğe Bağlı)
+            </label>
 
-      
-        <!-- Butonlar -->
-        <div class="flex flex-wrap items-center gap-4 pt-6 border-t border-gray-100">
-          
-          <!-- Ekle Butonu -->
-          <button 
-            type="submit"
-            class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-            </svg>
-            Görevi Oluştur
-          </button>
+            <textarea
+              id="description"
+              name="description"
+              rows="6"
+              maxlength="1000"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg
+                     focus:ring-2 focus:ring-indigo-500
+                     focus:border-indigo-500 transition-all duration-300 resize-none"
+              placeholder="Görev hakkında detaylı bilgi ekleyin..."
+            ></textarea>
 
-        </div>
+            <p class="mt-2 text-xs text-gray-500">
+              Maksimum 1000 karakter
+            </p>
+          </div>
 
-      </form>
+          <!-- Dosya Ekle -->
+          <div>
+            <label
+              for="file"
+              class="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Dosya Ekle (Opsiyonel)
+            </label>
+
+            <input
+              type="file"
+              id="file"
+              name="file"
+              class="block w-full text-sm text-gray-700
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-lg file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-indigo-50 file:text-indigo-700
+                     hover:file:bg-indigo-100 transition"
+            />
+
+            <p class="mt-2 text-xs text-gray-500">
+              PDF, resim veya doküman ekleyebilirsiniz.
+            </p>
+          </div>
+
+          <!-- BUTON -->
+          <div class="pt-6 border-t border-gray-100">
+            <button
+              type="submit"
+              class="inline-flex items-center gap-2 px-8 py-3
+                     bg-gradient-to-r from-indigo-600 to-purple-600
+                     text-white font-bold rounded-lg
+                     hover:from-indigo-700 hover:to-purple-700
+                     transition-all duration-300 shadow-md hover:shadow-xl
+                     transform hover:-translate-y-0.5"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Görevi Oluştur
+            </button>
+          </div>
+
+        </form>
+      </div>
     </div>
 
-    <!-- SAĞ GÖRSEL -->
-    <div class="flex justify-center">
+    <!-- ALT GÖRSEL -->
+    <div class="flex justify-center mt-12">
       <img
         src="{{ url_for('static', filename='images/task-management.png') }}"
         alt="Task Management Illustration"
-        class="max-w-full h-auto rounded-xl"
+        class="max-w-md w-full h-auto rounded-xl"
       />
     </div>
+
   </div>
 </div>
 {% endblock %}
