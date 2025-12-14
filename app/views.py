@@ -494,3 +494,7 @@ def toggle_note(note_id):
     # redirect ederken default_mode parametresini gönder
     return redirect(url_for('views.gorevler', default_mode=default_mode))
 
+@views.route('/new-task')
+@login_required
+def new_task():
+    return render_template('new_task.html', active_page='new_task')

@@ -3,45 +3,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %} {% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.14/dist/tailwind.min.css" rel="stylesheet">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.14/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
   </head>
-  <body class="h-screen overflow-hidden flex items-center justify-center" style="background: #edf2f7">
-
+  <body
+    class="h-screen overflow-hidden flex items-center justify-center"
+    style="background: #edf2f7"
+  >
     <!-- Flash Mesajları -->
-    <div class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="mb-4 p-3 rounded shadow text-center
-                        {% if category == 'success' %}bg-green-200 text-green-800
-                        {% elif category == 'error' %}bg-red-200 text-red-800
-                        {% else %}bg-gray-200 text-gray-800{% endif %}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+    <div
+      class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md"
+    >
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div
+        class="mb-4 p-3 rounded shadow text-center {% if category == 'success' %}bg-green-200 text-green-800 {% elif category == 'error' %}bg-red-200 text-red-800 {% else %}bg-gray-200 text-gray-800{% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %} {% endwith %}
     </div>
 
     {% if current_user.is_authenticated %}
-      <nav class="fixed top-0 left-0 w-full bg-purple-800 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
-        <div class="flex items-center space-x-8">
-          <a href="{{ url_for('views.home') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'home' %}border-b-2 border-white pb-1{% endif %}">Ana Sayfa</a>
-          <a href="{{ url_for('views.profile') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'profile' %}border-b-2 border-white pb-1{% endif %}">Profilim</a>
-          <a href="{{ url_for('views.gorevler') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'gorevler' %}border-b-2 border-white pb-1{% endif %}">Görevler</a>
-          <a href="{{ url_for('views.users_list') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'pano' %}border-b-2 border-white pb-1{% endif %}">Pano</a>
-          {% if current_user.role == 'admin' %}
-          <a href="{{ url_for('views.admin_panel') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'admin_panel' %}border-b-2 border-white pb-1{% endif %}">Admin Panel</a>
-          {% endif %}
-        </div>
+    <nav
+      class="fixed top-0 left-0 w-full bg-purple-800 text-white px-6 py-4 flex justify-between items-center shadow-md z-50"
+    >
+      <div class="flex items-center space-x-8">
+        <a
+          href="{{ url_for('views.home') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'home' %}border-b-2 border-white pb-1{% endif %}"
+          >Ana Sayfa</a
+        >
+        <a
+          href="{{ url_for('views.profile') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'profile' %}border-b-2 border-white pb-1{% endif %}"
+          >Profilim</a
+        >
+        <a
+          href="{{ url_for('views.gorevler') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'gorevler' %}border-b-2 border-white pb-1{% endif %}"
+          >Görevler</a
+        >
+        <a
+          href="{{ url_for('views.users_list') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'pano' %}border-b-2 border-white pb-1{% endif %}"
+          >Pano</a
+        >
+        <a
+          href="{{ url_for('views.new_task') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'new_task' %}border-b-2 border-white pb-1{% endif %}"
+        >
+          Yeni Görev Ekle
+        </a>
+        {% if current_user.role == 'admin' %}
+        <a
+          href="{{ url_for('views.admin_panel') }}"
+          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'admin_panel' %}border-b-2 border-white pb-1{% endif %}"
+          >Admin Panel</a
+        >
+        {% endif %}
+      </div>
 
-        <a href="{{ url_for('auth.logout') }}" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium">Çıkış</a>
-      </nav>
-    {% endif %}
-
-    {% block content %}
+      <a
+        href="{{ url_for('auth.logout') }}"
+        class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium"
+        >Çıkış</a
+      >
+    </nav>
+    {% endif %} {% block content %}
     <!-- İçerik buraya gelecek -->
     {% endblock %}
 
