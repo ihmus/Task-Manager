@@ -76,110 +76,111 @@ def users_list():
         })
 
     return render_template('users_list.html', users=users, user_cards=user_cards,active_page='pano')
-@views.route("/user/<int:user_id>")
-@login_required
-def user_profile(user_id):
-    user = User.query.get_or_404(user_id)
 
-    # Yetki kontrolü
-    if current_user.role != 'admin':
-        if current_user.id != user.id and user.role == 'admin':
-            abort(403)
+# @views.route("/user/<int:user_id>")
+# @login_required
+# def user_profile(user_id):
+#     user = User.query.get_or_404(user_id)
 
-    # 🔢 Görev sayıları
-    total_notes = Note.query.filter_by(user_id=user.id).count()
+#     # Yetki kontrolü
+#     if current_user.role != 'admin':
+#         if current_user.id != user.id and user.role == 'admin':
+#             abort(403)
 
-    completed_task_count = Note.query.filter_by(
-        user_id=user.id,
-        completed=True
-    ).count()
+#     # 🔢 Görev sayıları
+#     total_notes = Note.query.filter_by(user_id=user.id).count()
 
-    uncompleted_notes_count = Note.query.filter_by(
-        user_id=user.id,
-        completed=False
-    ).count()
-    total_tasks_count = completed_task_count + uncompleted_notes_count
+#     completed_task_count = Note.query.filter_by(
+#         user_id=user.id,
+#         completed=True
+#     ).count()
 
-    completed_notes = Note.query.filter_by(
-        user_id=user.id,
-        completed=True
-    ).order_by(Note.date.desc()).all()
+#     uncompleted_notes_count = Note.query.filter_by(
+#         user_id=user.id,
+#         completed=False
+#     ).count()
+#     total_tasks_count = completed_task_count + uncompleted_notes_count
 
-    uncompleted_notes = Note.query.filter_by(
-        user_id=user.id,
-        completed=False
-    ).order_by(Note.date.desc()).all()
+#     completed_notes = Note.query.filter_by(
+#         user_id=user.id,
+#         completed=True
+#     ).order_by(Note.date.desc()).all()
 
-    recent_notes = Note.query.filter_by(
-        user_id=user.id
-    ).order_by(Note.date.desc()).limit(10).all()
-    completion_percentage = (completed_task_count / total_tasks_count * 100) if total_tasks_count > 0 else 0
+#     uncompleted_notes = Note.query.filter_by(
+#         user_id=user.id,
+#         completed=False
+#     ).order_by(Note.date.desc()).all()
+
+#     recent_notes = Note.query.filter_by(
+#         user_id=user.id
+#     ).order_by(Note.date.desc()).limit(10).all()
+#     completion_percentage = (completed_task_count / total_tasks_count * 100) if total_tasks_count > 0 else 0
     
-    return render_template(
-        "user_profile.html",
-        user=user,
-        completion_percentage=completion_percentage,
-        total_notes=total_notes,
-        completed_task_count=completed_task_count,
-        uncompleted_task_count=uncompleted_notes_count,
-        completed_notes=completed_notes,
-        uncompleted_notes=uncompleted_notes,
-        recent_notes=recent_notes
-    )
-@views.route('/download/attachment/<int:attachment_id>')
-@login_required
-def download_attachment(attachment_id):
-    print("🔥 DOWNLOAD ROUTE ÇALIŞTI:", attachment_id)
-    attachment = Attachment.query.get_or_404(attachment_id)
-    note = attachment.note
+#     return render_template(
+#         "user_profile.html",
+#         user=user,
+#         completion_percentage=completion_percentage,
+#         total_notes=total_notes,
+#         completed_task_count=completed_task_count,
+#         uncompleted_task_count=uncompleted_notes_count,
+#         completed_notes=completed_notes,
+#         uncompleted_notes=uncompleted_notes,
+#         recent_notes=recent_notes
+#     )
+# @views.route('/download/attachment/<int:attachment_id>')
+# @login_required
+# def download_attachment(attachment_id):
+#     print("🔥 DOWNLOAD ROUTE ÇALIŞTI:", attachment_id)
+#     attachment = Attachment.query.get_or_404(attachment_id)
+#     note = attachment.note
 
-    # 🔐 Yetki kontrolü
-    if current_user.role != 'admin' and note.user_id != current_user.id:
-        abort(403)
+#     # 🔐 Yetki kontrolü
+#     if current_user.role != 'admin' and note.user_id != current_user.id:
+#         abort(403)
 
-    # 🔴 TEK KAYNAK: config'ten al
-    upload_folder = current_app.config['UPLOAD_FOLDER']
-    file_path = os.path.join(upload_folder, attachment.stored_name)
+#     # 🔴 TEK KAYNAK: config'ten al
+#     upload_folder = current_app.config['UPLOAD_FOLDER']
+#     file_path = os.path.join(upload_folder, attachment.stored_name)
 
-    # Debug (istersen sonra kaldır)
-    print("DOSYA:", attachment.stored_name)
-    print("UPLOAD_FOLDER:", upload_folder)
-    print("FULL PATH:", file_path)
-    print("VAR MI:", os.path.exists(file_path))
+#     # Debug (istersen sonra kaldır)
+#     print("DOSYA:", attachment.stored_name)
+#     print("UPLOAD_FOLDER:", upload_folder)
+#     print("FULL PATH:", file_path)
+#     print("VAR MI:", os.path.exists(file_path))
 
-    # Dosya gerçekten yoksa net hata ver
-    if not os.path.exists(file_path):
-        abort(404)
+#     # Dosya gerçekten yoksa net hata ver
+#     if not os.path.exists(file_path):
+#         abort(404)
 
-    return send_from_directory(
-        upload_folder,                  # 🔴 BURASI ÖNEMLİ
-        attachment.stored_name,
-        as_attachment=True,
-        download_name=attachment.filename
-    )
-@views.route('/admin/user/<int:user_id>/edit', methods=['GET', 'POST'])
-@login_required
-@role_required('admin')
-def user_admin_edit(user_id):
-    user = User.query.get_or_404(user_id)
+#     return send_from_directory(
+#         upload_folder,                  # 🔴 BURASI ÖNEMLİ
+#         attachment.stored_name,
+#         as_attachment=True,
+#         download_name=attachment.filename
+#     )
+# @views.route('/admin/user/<int:user_id>/edit', methods=['GET', 'POST'])
+# @login_required
+# @role_required('admin')
+# def user_admin_edit(user_id):
+#     user = User.query.get_or_404(user_id)
 
-    if request.method == 'POST':
-        # Form alanlarına göre güncelle
-        new_first_name = request.form.get('first_name', '').strip()
-        new_role = request.form.get('role', 'user')
-        if new_first_name:
-            user.first_name = new_first_name
-        user.role = new_role
-        try:
-            db.session.commit()
-            flash('Kullanıcı bilgileri güncellendi.', 'success')
-        except Exception:
-            db.session.rollback()
-            flash('Güncelleme sırasında hata oluştu.', 'error')
-        return redirect(url_for('views.users_list'))
+#     if request.method == 'POST':
+#         # Form alanlarına göre güncelle
+#         new_first_name = request.form.get('first_name', '').strip()
+#         new_role = request.form.get('role', 'user')
+#         if new_first_name:
+#             user.first_name = new_first_name
+#         user.role = new_role
+#         try:
+#             db.session.commit()
+#             flash('Kullanıcı bilgileri güncellendi.', 'success')
+#         except Exception:
+#             db.session.rollback()
+#             flash('Güncelleme sırasında hata oluştu.', 'error')
+#         return redirect(url_for('views.users_list'))
 
-    # GET: formu göster
-    return render_template('admin_edit_user.html', user=user)
+#     # GET: formu göster
+#     return render_template('admin_edit_user.html', user=user)
 # Admin only: assign task via POST (JSON or form)
 @views.route('/admin/assign_task', methods=['POST'])
 @login_required
@@ -518,4 +519,50 @@ def pano():
         completed_tasks=completed_tasks,
         pending_tasks=pending_tasks,
         active_page='pano'
+    )
+
+
+# ======================================================
+# USER PROFILE
+# ======================================================
+@views.route("/user/<int:user_id>")
+@login_required
+def user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+
+    if current_user.role != 'admin' and current_user.id != user.id:
+        abort(403)
+
+    total_notes = Note.query.filter_by(user_id=user.id).count()
+    completed_task_count = Note.query.filter_by(user_id=user.id, completed=True).count()
+    uncompleted_task_count = Note.query.filter_by(user_id=user.id, completed=False).count()
+
+    completed_notes = Note.query.filter_by(
+        user_id=user.id, completed=True
+    ).order_by(Note.date.desc()).all()
+
+    uncompleted_notes = Note.query.filter_by(
+        user_id=user.id, completed=False
+    ).order_by(Note.date.desc()).all()
+
+    recent_notes = Note.query.filter_by(
+        user_id=user.id
+    ).order_by(Note.date.desc()).limit(10).all()
+
+    completion_percentage = (
+        (completed_task_count / total_notes) * 100
+        if total_notes > 0 else 0
+    )
+
+    return render_template(
+        "user_profile.html",
+        user=user,
+        completion_percentage=completion_percentage,
+        total_notes=total_notes,
+        completed_task_count=completed_task_count,
+        uncompleted_task_count=uncompleted_task_count,
+        completed_notes=completed_notes,
+        uncompleted_notes=uncompleted_notes,
+        recent_notes=recent_notes,
+        active_page='profile'
     )

@@ -101,7 +101,7 @@
 </span>
       <div class="flex items-center gap-1 mt-1">
         {% for file in note.attachments %}
-          <a href="{{ url_for('views.download_attachment', attachment_id=file.id) }}"
+          <a href="{{ url_for('views.update_note', note_id=file.id) }}"
             class="text-indigo-500 hover:text-indigo-700 transition"
             title="{{ file.filename }}">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
