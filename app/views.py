@@ -498,3 +498,31 @@ def toggle_note(note_id):
 @login_required
 def new_task():
     return render_template('new_task.html', active_page='new_task')
+
+
+@views.route('/istatistikler')
+@login_required
+def istatistikler():
+    user_id = current_user.id
+
+    total_tasks = Note.query.filter_by(user_id=user_id).count()
+    completed_tasks = Note.query.filter_by(
+        user_id=user_id,
+        completed=True
+    ).count()
+
+    pending_tasks = total_tasks - completed_tasks
+
+    completion_percentage = (
+        round((completed_tasks / total_tasks) * 100, 1)
+        if total_tasks > 0 else 0
+    )
+
+    return render_template(
+        'istatistikler.html',
+        total_tasks=total_tasks,
+        completed_tasks=completed_tasks,
+        pending_tasks=pending_tasks,
+        completion_percentage=completion_percentage,
+        active_page='istatistikler'
+    )
