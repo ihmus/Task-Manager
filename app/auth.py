@@ -54,7 +54,7 @@ def login():
         print(f"[{datetime.now()}] User logged in: {email}")
 
         flash('Logged in successfully!', category='success')
-        return redirect(url_for('views.home'))
+        return redirect(url_for('views.user_profile',user_id=current_user.id))
 
     return render_template("login.html")
 

@@ -4,6 +4,7 @@ from .models import Note,User
 from .utils import role_required
 from datetime import datetime
 from . import db
+import uuid
 import pytz
 from sqlalchemy.orm import joinedload
 import os
@@ -79,6 +80,7 @@ def users_list():
 @views.route("/user/<int:user_id>")
 @login_required
 def user_profile(user_id):
+    user_id = user_id or current_user.id
     user = User.query.get_or_404(user_id)
 
     # Yetki kontrolü
@@ -87,7 +89,7 @@ def user_profile(user_id):
             abort(403)
 
     # 🔢 Görev sayıları
-    total_notes = Note.query.filter_by(user_id=user.id).count()
+    total_tasks_count = Note.query.filter_by(user_id=user.id).count()
 
     completed_task_count = Note.query.filter_by(
         user_id=user.id,
@@ -98,7 +100,7 @@ def user_profile(user_id):
         user_id=user.id,
         completed=False
     ).count()
-    total_tasks_count = completed_task_count + uncompleted_notes_count
+    #total_tasks_count = completed_task_count + uncompleted_notes_count
 
     completed_notes = Note.query.filter_by(
         user_id=user.id,
@@ -119,7 +121,7 @@ def user_profile(user_id):
         "user_profile.html",
         user=user,
         completion_percentage=completion_percentage,
-        total_notes=total_notes,
+        total_tasks_count=total_tasks_count,
         completed_task_count=completed_task_count,
         uncompleted_task_count=uncompleted_notes_count,
         completed_notes=completed_notes,
@@ -270,7 +272,7 @@ def admin_assign_task():
         db.session.rollback()
         current_app.logger.exception("assign_task hata")
         return jsonify({'error':'server_error', 'msg': str(e)}), 500
-@views.route('/', methods=['GET'])
+@views.route('/new-note', methods=['GET'])
 @login_required
 def home():
     default_mode = request.args.get('default_mode', '1', type=int)
@@ -288,39 +290,79 @@ def db_status():
         status = f"Inactive ❌ ({e})"
     return f"<h3>Database Connection: {status}</h3>"
 
+def allowed_file(filename):
+    allowed = current_app.config.get('ALLOWED_EXTENSIONS', set())
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed
 
 # Yeni görev oluşturma işlemi
-@views.route('/create', methods=['POST'])
+@views.route('/create_note', methods=['POST'])
 @login_required
 def create_note():
-    note_title = request.form.get('title')
-    description = request.form.get('description')
-    
-    # Validasyon
-    if not note_title or len(note_title) < 1:
-        flash('Görev başlığı boş olamaz!', 'error')
-        
-    
-    if len(note_title) > 200:
-        flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
-        
-    
-    # Yeni not oluştur
+    title = (request.form.get('title') or '').strip()
+    description = request.form.get('description') or None
+    uploaded = request.files.get('file')
+
+    if not title:
+        flash('Görev başlığı zorunludur.', 'error')
+        return redirect(url_for('views.home'))
+
+    # ---- FILE VALIDATION (ÖNCE) ----
+    filename = None
+    ext = None
+
+    if uploaded and uploaded.filename:
+        filename = secure_filename(uploaded.filename)
+        ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+
+        allowed = current_app.config.get('ALLOWED_EXTENSIONS')
+        if allowed and ext not in allowed:
+            flash('Dosya türüne izin verilmiyor.', 'error')
+            return redirect(url_for('views.home'))
+
+    # ---- NOTE CREATE ----
     new_note = Note(
-        title=note_title,
-        description=description if description else None,
+        title=title[:200],
+        description=description,
         user_id=current_user.id
     )
-    
+
     try:
         db.session.add(new_note)
+        db.session.flush()  # note.id al
+
+        # ---- FILE SAVE ----
+        if uploaded and filename:
+            import uuid, os
+
+            stored_name = f"{uuid.uuid4().hex}{'.' + ext if ext else ''}"
+            upload_folder = current_app.config['UPLOAD_FOLDER']
+            os.makedirs(upload_folder, exist_ok=True)
+
+            dest = os.path.join(upload_folder, stored_name)
+            uploaded.save(dest)
+
+            size = os.path.getsize(dest)
+
+            att = Attachment(
+                filename=filename,
+                stored_name=stored_name,
+                mime_type=uploaded.mimetype,
+                size=size,
+                note_id=new_note.id
+            )
+            db.session.add(att)
+
         db.session.commit()
-        flash('Görev başarıyla oluşturuldu!', 'success')
+        flash('Görev başarıyla oluşturuldu.', 'success')
         return redirect(url_for('views.home'))
-    except Exception as e:
+
+    except Exception:
         db.session.rollback()
-        flash('Görev oluşturulurken bir hata oluştu.', 'error')
+        current_app.logger.exception("create_note hata")
+        flash('Görev oluşturulurken hata oluştu.', 'error')
         return redirect(url_for('views.home'))
+
 
 @views.route('/my-profile', methods=['GET', 'POST'])
 @login_required
@@ -377,9 +419,16 @@ def update_note(note_id):
 @views.route('/gorevler', methods=['GET', 'POST'])
 @login_required
 def gorevler():
-    status_filter = request.args.get('status', 'active')
+    status_filter = request.args.get('status')
     default_mode = int(request.args.get('default_mode', 1))
     user_id = request.args.get('user_id', type=int)
+    if not status_filter:
+        if default_mode == 1:
+            status_filter = 'all'
+        elif default_mode == 2:
+            status_filter = 'active'
+        elif default_mode == 3:
+            status_filter = 'passive'
 
     notes_with_time = []
 
