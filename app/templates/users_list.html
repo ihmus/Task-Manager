@@ -67,7 +67,6 @@
               Görev Ata
             </button>
 
-              <a href="{{ url_for('views.user_admin_edit', user_id=card.id) }}" class="text-sm text-gray-500 hover:text-gray-700">Yetki</a>
             {% endif %}
           </div>
         </div>
@@ -284,36 +283,52 @@ if (assignForm) {
     }
 
     fetch('/admin/assign_task', {
-      method: 'POST',
-      body: fd,
-      headers: { 'X-Requested-With': 'XMLHttpRequest' },
-      credentials: 'same-origin'
-    })
-    .then(async r => {
-      let data;
-      try { data = await r.json(); } catch(e){ data = null; }
-      if (!r.ok) {
-        const msg = data && data.error ? data.error : `Sunucu hata ${r.status}`;
-        throw new Error(msg);
-      }
-      return data;
-    })
-    .then(data => {
-      if (btn) { btn.disabled = false; btn.textContent = oldText; }
-      if (data && data.ok) {
-        closeAssignModal();
-        alert('Görev başarıyla atandı.');
-        location.reload();
-      } else {
-        const err = data && data.error ? data.error : 'Bilinmeyen hata';
-        alert('Hata: ' + err);
-      }
-    })
-    .catch(err => {
-      if (btn) { btn.disabled = false; btn.textContent = oldText; }
-      console.error('assign error', err);
-      alert('Sunucu hatası: ' + (err.message || err));
-    });
+  method: 'POST',
+  body: fd,
+  headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  credentials: 'same-origin'
+})
+.then(async (response) => {
+
+  // 🔴 413 ÖZEL YAKALAMA
+  if (response.status === 413) {
+    const data = await response.json();
+    throw new Error(data.message || 'Dosya boyutu çok büyük');
+  }
+
+  // 🔴 Diğer HTTP hataları
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || `Sunucu hatası (${response.status})`);
+  }
+
+  // OK
+  return response.json();
+})
+.then(data => {
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+
+  if (data && data.ok) {
+    closeAssignModal();
+    alert('Görev başarıyla atandı.');
+    location.reload();
+  } else {
+    alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
+  }
+})
+.catch(err => {
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+
+  console.error('assign error:', err);
+  alert(err.message || 'Sunucu hatası');
+});
+
   });
 }
 </script>
