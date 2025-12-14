@@ -334,13 +334,13 @@ def profile():
 @login_required
 def edit_note(note_id):
     note = Note.query.get_or_404(note_id)
-    user = User.query.get_or_404(current_user.id)
-    # Kullanıcının kendi notunu düzenlemesini sağla
-    if note.user_id != current_user.id and user.role != 'admin':
+
+    if note.user_id != current_user.id and current_user.role != 'admin':
         flash('Bu görevi düzenleme yetkiniz yok.', 'error')
         return redirect(url_for('views.home'))
-    
+
     return render_template('edit_note.html', note=note)
+
 @views.route('/update/<int:note_id>', methods=['POST'])
 @login_required
 def update_note(note_id):
@@ -374,63 +374,29 @@ def update_note(note_id):
         db.session.rollback()
         flash('Görev güncellenirken bir hata oluştu.', 'error')
         return redirect(url_for('views.edit_note', note_id=note_id))
-@views.route('/gorevler', methods=['GET', 'POST'])
+    
+@views.route('/gorevler')
 @login_required
 def gorevler():
     status_filter = request.args.get('status', 'active')
-    default_mode = int(request.args.get('default_mode', 1))
-    user_id = request.args.get('user_id', type=int)
+    default_mode = request.args.get('default_mode', 1, type=int)
 
-    notes_with_time = []
-
-    # --- ROLE & USER FİLTRE ---
-    # if current_user.role == "admin":
-    #     if user_id:
-    #         notes = Note.query.filter_by(user_id=user_id).all()
-    #     else:
-    #         notes = Note.query.all()
-    # else:
-    #     notes = current_user.notes
-    # -------------------------
-    if user_id:
-        notes = Note.query.filter_by(user_id=user_id).all()
+    if current_user.role == 'admin':
+        notes = Note.query.all()
     else:
-        if current_user.role == "admin":
-            notes = Note.query.all()
-        else:
-            notes = Note.query.filter_by(user_id=current_user.id).all()
+        notes = Note.query.filter_by(user_id=current_user.id).all()
 
+    filtered_notes = []
     for note in notes:
         if status_filter == 'active' and note.completed:
             continue
         if status_filter == 'passive' and not note.completed:
             continue
+        filtered_notes.append(note)
 
-        note_date = note.date.replace(tzinfo=pytz.utc) if note.date.tzinfo is None else note.date
-        delta = datetime.now(pytz.utc) - note_date
-        seconds = int(delta.total_seconds())
-
-        if seconds < 60:
-            time_passed, color = f"{seconds} saniye önce", "green"
-        elif seconds < 3600:
-            time_passed, color = f"{seconds // 60} dakika önce", "orange"
-        elif seconds < 86400:
-            time_passed, color = f"{seconds // 3600} saat önce", "red"
-        else:
-            time_passed, color = f"{seconds // 86400} gün önce", "brown"
-
-        # notes_with_time.append({
-        #     'id': note.id,
-        #     'title': note.title,
-        #     'time_passed': time_passed,
-        #     'color': color,
-        #     'completed': note.completed,
-        #     'owner': note.owner.first_name if note.owner else "Bilinmiyor"
-        # })
-        notes_with_time.append(note) 
     return render_template(
-        "gorevler.html",
-        notes=notes_with_time,
+        'gorevler.html',
+        notes=filtered_notes,
         default_mode=default_mode,
         active_page='gorevler'
     )
@@ -439,18 +405,18 @@ def gorevler():
 @login_required
 def delete_note(note_id):
     note = Note.query.get_or_404(note_id)
-    #if note.user_id != current_user.id and not current_user.has_role('admin'):
-    if not current_user.has_role('admin'):
-        flash("Sadece admin kullanıcısı notları silebilir", "error")
+
+    if note.user_id != current_user.id and current_user.role != 'admin':
+        flash("Bu görevi silme yetkiniz yok", "error")
         return redirect(url_for('views.gorevler'))
 
     db.session.delete(note)
     db.session.commit()
-    flash("Not silindi!", "success")
-    
-    # default_mode parametresi ile redirect
-    default_mode = request.form.get('default_mode', 1)
-    return redirect(url_for('views.gorevler', default_mode=default_mode))
+
+    flash("Görev silindi!", "success")
+    return redirect(url_for('views.gorevler'))
+
+
 @views.route('/note/<int:note_id>')
 def task_details(note_id):
     note = Note.query.get_or_404(note_id)
@@ -477,8 +443,11 @@ def task_details(note_id):
     else:  # gün
             time_passed = f"{seconds // 86400} gün önce"
             color = "brown"
+    if note.user_id != current_user.id and current_user.role != 'admin':
+        abort(403)
     
     return render_template('task_detail.html', note=note,color=color)
+
 @views.route('/note/<int:note_id>/toggle', methods=['POST'])
 @login_required
 def toggle_note(note_id):
@@ -525,4 +494,28 @@ def istatistikler():
         pending_tasks=pending_tasks,
         completion_percentage=completion_percentage,
         active_page='istatistikler'
+    )
+
+@views.route('/pano')
+@login_required
+def pano():
+    if current_user.role == 'admin':
+        flash("Bu sayfa sadece kullanıcılar içindir.", "error")
+        return redirect(url_for('views.admin_panel'))
+
+    completed_tasks = Note.query.filter_by(
+        user_id=current_user.id,
+        completed=True
+    ).order_by(Note.date.desc()).all()
+
+    pending_tasks = Note.query.filter_by(
+        user_id=current_user.id,
+        completed=False
+    ).order_by(Note.date.desc()).all()
+
+    return render_template(
+        'pano.html',
+        completed_tasks=completed_tasks,
+        pending_tasks=pending_tasks,
+        active_page='pano'
     )
