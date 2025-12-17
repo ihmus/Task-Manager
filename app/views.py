@@ -559,18 +559,66 @@ def new_task():
     return render_template('new_task.html', active_page='new_task')
 
 
+# @views.route('/istatistikler')
+# @login_required
+# def istatistikler():
+#     user_id = current_user.id
+
+#     total_tasks = Note.query.filter_by(user_id=user_id).count()
+#     completed_tasks = Note.query.filter_by(
+#         user_id=user_id,
+#         completed=True
+#     ).count()
+
+#     pending_tasks = total_tasks - completed_tasks
+
+#     completion_percentage = (
+#         round((completed_tasks / total_tasks) * 100, 1)
+#         if total_tasks > 0 else 0
+#     )
+
+#     return render_template(
+#         'istatistikler.html',
+#         total_tasks=total_tasks,
+#         completed_tasks=completed_tasks,
+#         pending_tasks=pending_tasks,
+#         completion_percentage=completion_percentage,
+#         active_page='istatistikler'
+#     )
+    
+
 @views.route('/istatistikler')
 @login_required
 def istatistikler():
     user_id = current_user.id
+    now = datetime.now(pytz.utc) # Şu anki zaman (UTC)
 
-    total_tasks = Note.query.filter_by(user_id=user_id).count()
-    completed_tasks = Note.query.filter_by(
-        user_id=user_id,
-        completed=True
-    ).count()
+    # Kullanıcının tüm notlarını çek
+    all_notes = Note.query.filter_by(user_id=user_id).all()
+    
+    total_tasks = len(all_notes)
+    completed_tasks = 0
+    overdue_tasks = 0
+    continuing_tasks = 0
 
-    pending_tasks = total_tasks - completed_tasks
+    for note in all_notes:
+        if note.completed:
+            completed_tasks += 1
+        else:
+            # Deadline varsa ve geçmişse "Geciken", yoksa veya gelecekse "Devam Eden"
+            if note.deadline:
+                # Timezone kontrolü (Zaman dilimi yoksa UTC ekle)
+                deadline = note.deadline
+                if deadline.tzinfo is None:
+                    deadline = deadline.replace(tzinfo=pytz.utc)
+                
+                if deadline < now:
+                    overdue_tasks += 1
+                else:
+                    continuing_tasks += 1
+            else:
+                # Deadline belirlenmemişse ama tamamlanmamışsa devam ediyor sayılır
+                continuing_tasks += 1
 
     completion_percentage = (
         round((completed_tasks / total_tasks) * 100, 1)
@@ -581,7 +629,8 @@ def istatistikler():
         'istatistikler.html',
         total_tasks=total_tasks,
         completed_tasks=completed_tasks,
-        pending_tasks=pending_tasks,
+        overdue_tasks=overdue_tasks,
+        continuing_tasks=continuing_tasks,
         completion_percentage=completion_percentage,
         active_page='istatistikler'
     )
