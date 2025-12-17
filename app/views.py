@@ -291,38 +291,127 @@ def db_status():
 
 
 # Yeni görev oluşturma işlemi
+
+# Yeni görev oluşturma işlemi
 @views.route('/create', methods=['POST'])
 @login_required
 def create_note():
+    # 1. Formdan verileri al
     note_title = request.form.get('title')
     description = request.form.get('description')
-    
-    # Validasyon
+    start_date_str = request.form.get('start_date')
+    deadline_str = request.form.get('deadline')
+    duration_str = request.form.get('duration')
+
+    # 2. Başlık kontrolü
     if not note_title or len(note_title) < 1:
         flash('Görev başlığı boş olamaz!', 'error')
-        
+        return redirect(url_for('views.home'))
+
+    # 3. Tarih ve Süre Mantığı
+    from datetime import datetime, timedelta # Güvenli olması için burada tekrar belirttik
     
-    if len(note_title) > 200:
-        flash('Görev başlığı 200 karakterden uzun olamaz!', 'error')
-        
-    
-    # Yeni not oluştur
+    # Başlangıç tarihini ayarla
+    if start_date_str:
+        try:
+            start_date_obj = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            start_date_obj = datetime.now()
+    else:
+        start_date_obj = datetime.now()
+
+    deadline_obj = None
+    duration_val = int(duration_str) if (duration_str and duration_str.isdigit()) else None
+
+    # Otomatik hesaplama (Python tarafında)
+    if deadline_str:
+        try:
+            deadline_obj = datetime.strptime(deadline_str, '%Y-%m-%dT%H:%M')
+            if duration_val is None:
+                diff = deadline_obj - start_date_obj
+                duration_val = max(0, diff.days)
+        except ValueError:
+            pass # Hatalı format gelirse deadline boş kalır
+    elif duration_val is not None:
+        deadline_obj = start_date_obj + timedelta(days=duration_val)
+
+    # 4. Veritabanına kaydet
     new_note = Note(
         title=note_title,
         description=description if description else None,
-        user_id=current_user.id
+        user_id=current_user.id,
+        start_date=start_date_obj,
+        deadline=deadline_obj,
+        duration_days=duration_val
     )
     
     try:
         db.session.add(new_note)
         db.session.commit()
-        flash('Görev başarıyla oluşturuldu!', 'success')
-        return redirect(url_for('views.home'))
+        flash('Görev planlamasıyla birlikte oluşturuldu!', 'success')
     except Exception as e:
         db.session.rollback()
-        flash('Görev oluşturulurken bir hata oluştu.', 'error')
-        return redirect(url_for('views.home'))
+        flash(f'Veritabanı Hatası: {str(e)}', 'error')
+        
+    return redirect(url_for('views.home'))
 
+
+# @views.route('/create', methods=['POST'])
+# @login_required
+# @views.route('/create', methods=['POST'])
+# @login_required
+# def create_note():
+#     # 1. Formdan verileri al (Boşluklara dikkat: fonksiyonun 1 tık içinde)
+#     note_title = request.form.get('title')
+#     description = request.form.get('description')
+#     start_date_str = request.form.get('start_date')
+#     deadline_str = request.form.get('deadline')
+#     duration_str = request.form.get('duration')
+
+#     # 2. Başlık kontrolü
+#     if not note_title or len(note_title) < 1:
+#         flash('Görev başlığı boş olamaz!', 'error')
+#         return redirect(url_for('views.home'))
+
+#     # 3. Tarih ve Süre Mantığı (Buradaki if/else bloklarının hizası çok önemli)
+#     # Başlangıç tarihini ayarla
+#     if start_date_str:
+#         start_date_obj = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M')
+#     else:
+#         start_date_obj = datetime.now()
+
+#     deadline_obj = None
+#     duration_val = int(duration_str) if (duration_str and duration_str.isdigit()) else None
+
+#     # Otomatik hesaplama
+#     from datetime import timedelta # Fonksiyon başında yoksa buraya ekleyebilirsin
+#     if deadline_str:
+#         deadline_obj = datetime.strptime(deadline_str, '%Y-%m-%dT%H:%M')
+#         if duration_val is None:
+#             diff = deadline_obj - start_date_obj
+#             duration_val = max(0, diff.days)
+#     elif duration_val is not None:
+#         deadline_obj = start_date_obj + timedelta(days=duration_val)
+
+#     # 4. Veritabanına kaydet
+#     new_note = Note(
+#         title=note_title,
+#         description=description if description else None,
+#         user_id=current_user.id,
+#         start_date=start_date_obj,
+#         deadline=deadline_obj,
+#         duration_days=duration_val
+#     )
+    
+#     try:
+#         db.session.add(new_note)
+#         db.session.commit()
+#         flash('Görev planlamasıyla birlikte oluşturuldu!', 'success')
+#     except Exception as e:
+#         db.session.rollback()
+#         flash(f'Hata: {str(e)}', 'error')
+        
+#     return redirect(url_for('views.home'))
 @views.route('/my-profile', methods=['GET', 'POST'])
 @login_required
 def profile():
