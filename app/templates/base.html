@@ -35,48 +35,13 @@
     </div>
 
     {% if current_user.is_authenticated %}
-    <nav
-      class="fixed top-0 left-0 w-full bg-purple-800 text-white px-6 py-4 flex justify-between items-center shadow-md z-50"
-    >
-      <div class="flex items-center space-x-8">
-        <a
-          href="{{ url_for('views.home') }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'home' %}border-b-2 border-white pb-1{% endif %}"
-          >Ana Sayfa</a
-        >
-        <a
-          href="{{ url_for('views.user_profile', user_id=current_user.id) }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'profile' %}border-b-2 border-white pb-1{% endif %}"
-        >
-          Profilim
-        </a>
-
-        <a
-          href="{{ url_for('views.gorevler') }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'gorevler' %}border-b-2 border-white pb-1{% endif %}"
-          >Görevler</a
-        >
-        {% if current_user.role != 'admin' %}
-        <a
-          href="{{ url_for('views.pano') }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'pano' %}border-b-2 border-white pb-1{% endif %}"
-        >
-          Pano
-        </a>
-        {% endif %}
-
-        <a
-          href="{{ url_for('views.new_task') }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'new_task' %}border-b-2 border-white pb-1{% endif %}"
-        >
-          Görev Ekle
-        </a>
-        <a
-          href="{{ url_for('views.istatistikler') }}"
-          class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'istatistikler' %}border-b-2 border-white pb-1{% endif %}"
-        >
-          İstatistikler
-        </a>
+      <nav class="fixed top-0 left-0 w-full bg-purple-800 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
+        <div class="flex items-center space-x-8">
+          <a href="{{ url_for('views.user_profile', user_id=current_user.id) }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'home' %}border-b-2 border-white pb-1{% endif %}">Profilim</a>
+          <a href="{{ url_for('views.home') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'profile' %}border-b-2 border-white pb-1{% endif %}">Görev Ekle</a>
+          <a href="{{ url_for('views.gorevler') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'gorevler' %}border-b-2 border-white pb-1{% endif %}">Görevler</a>
+          <a href="{{ url_for('views.users_list') }}" class="text-lg font-semibold hover:text-purple-300 {% if active_page == 'pano' %}border-b-2 border-white pb-1{% endif %}">Pano</a>
+        </div>
 
         {% if current_user.role == 'admin' %}
         <a
