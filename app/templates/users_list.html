@@ -1,143 +1,219 @@
 {# templates/users_list.html #}
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <h1 class="text-2xl font-semibold text-gray-800 mb-6">Kullanıcılar</h1>
 
-  <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-    {% for card in user_cards %}
-      <div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100">
-          <a href="{{ url_for('views.user_profile', user_id=card.id) }}" 
-   class="block bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer">
-      
-  <div class="p-4 flex gap-3">
-    <div class="flex-none w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-lg font-medium text-gray-700">
-      {{ card.name[0]|upper }}
-    </div>
-    <div class="flex-1 min-w-0">
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4 sm:px-6 lg:px-8 " >
+  <div class="max-w-7xl mx-auto h-screen overflow-y-auto">
+    
+    <!-- Header Section -->
+    <div class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <div class="text-sm font-semibold text-gray-900 truncate">{{ card.name }}</div>
-          <div class="text-xs text-gray-500">{{ card.role }}</div>
+          <h1 class="text-4xl font-black text-white mb-2 tracking-tight">Kullanıcılar</h1>
+          <p class="text-purple-300 text-lg">Tüm ekip üyelerini ve görevlerini yönetin</p>
         </div>
-        <div class="text-right text-xs text-gray-500">
-          <div>Toplam</div>
-          <div class="font-semibold text-gray-800">{{ card.total_notes }}</div>
+        <div class="flex items-center gap-3">
+          <div class="bg-white/10 backdrop-blur-xl rounded-xl px-4 py-2 border border-white/20">
+            <span class="text-sm text-purple-300 font-semibold">Toplam:</span>
+            <span class="text-2xl font-black text-white ml-2">{{ users.total }}</span>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-3">
-        {% if card.recent_notes %}
-          <ul class="space-y-1 text-sm text-gray-700">
-            {% for note in card.recent_notes %}
-              <li class="flex items-center justify-between">
-                <span class="truncate">{{ note.title }}</span>
-                <span class="ml-2 text-xs px-2 py-0.5 rounded-full 
-                      {% if note.completed %}bg-green-100 text-green-800
-                      {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                  {% if note.completed %}✓{% else %}…{% endif %}
-                </span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="text-sm text-gray-400">Henüz not yok</p>
-        {% endif %}
       </div>
     </div>
-  </div>
 
-</a>
+    <!-- User Cards Grid -->
+    <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-8">
+      {% for card in user_cards %}
+      <div class="group bg-white/10 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/20 hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-2">
+        
+        <a href="{{ url_for('views.user_profile', user_id=card.id) }}" 
+           class="block p-5 hover:bg-white/5 transition-colors duration-200">
+          
+          <div class="flex items-start gap-4 mb-4">
+            <div class="relative">
+              <div class="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+              <div class="relative w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-lg border-2 border-white/20">
+                {{ card.name[0]|upper }}
+              </div>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-black text-white truncate mb-1">{{ card.name }}</h3>
+              <p class="text-sm text-purple-300 mb-2">{{ card.role }}</p>
+              <div class="inline-flex items-center gap-2 bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full text-xs font-bold border border-purple-500/30">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                {{ card.total_notes }} Görev
+              </div>
+            </div>
+          </div>
 
+          <div class="mt-4">
+            {% if card.recent_notes %}
+              <div class="space-y-2">
+                {% for note in card.recent_notes %}
+                <div class="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2 border border-white/10 hover:bg-white/10 transition-colors">
+                  <span class="text-sm text-gray-300 truncate flex-1">{{ note.title }}</span>
+                  <span class="ml-2 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
+                        {% if note.completed %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30
+                        {% else %}bg-amber-500/20 text-amber-300 border border-amber-500/30{% endif %}">
+                    {% if note.completed %}✓{% else %}•{% endif %}
+                  </span>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center py-6">
+                <svg class="w-12 h-12 text-gray-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-sm text-gray-500">Henüz görev yok</p>
+              </div>
+            {% endif %}
+          </div>
+        </a>
 
-        <div class="px-4 py-3 bg-gray-50 flex items-center gap-2 justify-between">
-          <div class="flex items-center gap-2">
-            <a href="{{ url_for('views.profile', user_id=card.id) }}" class="inline-flex items-center px-3 py-1.5 text-sm rounded-md bg-white border text-gray-700 hover:bg-gray-100">
-              Tümünü Gör
+        <div class="px-5 py-4 bg-white/5 border-t border-white/10 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 flex-1">
+            <a href="{{ url_for('views.user_profile', user_id=card.id) }}" 
+               class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-bold rounded-lg bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+              Profil
             </a>
-
-            <button data-user-id="{{ card.id }}" class="open-notes-btn inline-flex items-center px-3 py-1.5 text-sm rounded-md bg-indigo-600 text-white hover:bg-indigo-700">
+            <button data-user-id="{{ card.id }}" 
+                    class="open-notes-btn flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/30">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
               Önizle
             </button>
           </div>
-
-          <div class="flex items-center gap-2">
-            {% if current_user.role == 'admin' %}
-            <button data-user-id="{{ card.id }}" class="open-assign-btn inline-flex items-center px-3 py-1.5 text-sm rounded-md bg-green-600 text-white hover:bg-green-700">
-              Görev Ata
-            </button>
-
-            {% endif %}
-          </div>
+          {% if current_user.role == 'admin' %}
+          <button data-user-id="{{ card.id }}" 
+                  class="open-assign-btn inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-bold rounded-lg bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:from-emerald-500 hover:to-green-500 transition-all shadow-lg shadow-emerald-500/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Ata
+          </button>
+          {% endif %}
         </div>
       </div>
-    {% endfor %}
-  </div>
+      {% endfor %}
+    </div>
 
-  <!-- Pagination (basit) -->
-  <div class="mt-6 flex items-center justify-center">
-    <nav class="inline-flex -space-x-px">
-      {% if users.has_prev %}
-        <a href="{{ url_for('views.users_list', page=users.prev_num) }}" class="px-3 py-1.5 rounded-l-md border bg-white text-gray-700">Önceki</a>
-      {% else %}
-        <span class="px-3 py-1.5 rounded-l-md border bg-gray-100 text-gray-400">Önceki</span>
-      {% endif %}
-      <span class="px-4 py-1.5 border-t border-b bg-white text-gray-700">Sayfa {{ users.page }} / {{ users.pages }}</span>
-      {% if users.has_next %}
-        <a href="{{ url_for('views.users_list', page=users.next_num) }}" class="px-3 py-1.5 rounded-r-md border bg-white text-gray-700">Sonraki</a>
-      {% else %}
-        <span class="px-3 py-1.5 rounded-r-md border bg-gray-100 text-gray-400">Sonraki</span>
-      {% endif %}
-    </nav>
+    <div class="flex items-center justify-center">
+      <nav class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-xl rounded-xl p-2 border border-white/20">
+        {% if users.has_prev %}
+          <a href="{{ url_for('views.users_list', page=users.prev_num) }}" 
+             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Önceki
+          </a>
+        {% else %}
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-gray-500 font-semibold cursor-not-allowed">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Önceki
+          </span>
+        {% endif %}
+        <div class="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg">
+          <span class="text-white font-black">{{ users.page }}</span>
+          <span class="text-purple-200 mx-2">/</span>
+          <span class="text-purple-200 font-semibold">{{ users.pages }}</span>
+        </div>
+        {% if users.has_next %}
+          <a href="{{ url_for('views.users_list', page=users.next_num) }}" 
+             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition-all">
+            Sonraki
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        {% else %}
+          <span class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-gray-500 font-semibold cursor-not-allowed">
+            Sonraki
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </span>
+        {% endif %}
+      </nav>
+    </div>
   </div>
 </div>
 
-<!-- Notes Modal (hidden by default) -->
-<div id="notesModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
-  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
-    <div class="flex items-center justify-between px-4 py-3 border-b">
-      <h3 id="notesModalTitle" class="text-lg font-semibold text-gray-900">Notlar</h3>
-      <button id="notesModalClose" class="text-gray-500 hover:text-gray-700">&times;</button>
+<div id="notesModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-gradient-to-br from-slate-900 to-purple-900 rounded-2xl shadow-2xl max-w-3xl w-full border border-white/20 overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <h3 id="notesModalTitle" class="text-xl font-black text-white">Notlar</h3>
+      </div>
+      <button id="notesModalClose" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
-    <div id="notesModalBody" class="p-4 max-h-96 overflow-auto">
-      <div class="text-sm text-gray-500">Yükleniyor…</div>
+    <div id="notesModalBody" class="p-6 max-h-96 overflow-auto">
+      <div class="flex items-center justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+      </div>
     </div>
-    <div class="px-4 py-3 border-t flex justify-end">
-      <button id="notesModalClose2" class="px-3 py-1.5 rounded-md bg-gray-100 hover:bg-gray-200">Kapat</button>
+    <div class="px-6 py-4 border-t border-white/10 bg-white/5 flex justify-end">
+      <button id="notesModalClose2" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition-all">Kapat</button>
     </div>
   </div>
 </div>
 
-<!-- Assign Modal -->
-<div id="assignModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
-  <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-    <div class="flex items-center justify-between px-4 py-3 border-b">
-      <h3 id="assignModalTitle" class="text-lg font-semibold text-gray-900">Kullanıcıya Görev Ata</h3>
-      <button id="assignModalClose" class="text-gray-500 hover:text-gray-700">&times;</button>
+<div id="assignModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="bg-gradient-to-br from-slate-900 to-purple-900 rounded-2xl shadow-2xl max-w-lg w-full border border-white/20 overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+        </div>
+        <h3 id="assignModalTitle" class="text-xl font-black text-white">Görev Ata</h3>
+      </div>
+      <button id="assignModalClose" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
-
-    <form id="assignForm" class="p-4" enctype="multipart/form-data" novalidate>
+    <form id="assignForm" class="p-6" enctype="multipart/form-data" novalidate>
       <input type="hidden" name="user_id" id="assign_user_id" value="">
-      <div class="space-y-3">
+      <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700">Başlık <span class="text-red-500">*</span></label>
-          <input name="title" id="assign_title" required class="mt-1 block w-full rounded border px-3 py-2" placeholder="Görev başlığı">
+          <label class="block text-sm font-bold text-white mb-2">Başlık <span class="text-red-400">*</span></label>
+          <input name="title" id="assign_title" required class="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" placeholder="Görev başlığı girin">
         </div>
-
         <div>
-          <label class="block text-sm font-medium text-gray-700">Açıklama</label>
-          <textarea name="description" id="assign_description" rows="3" class="mt-1 block w-full rounded border px-3 py-2" placeholder="Detaylar (opsiyonel)"></textarea>
+          <label class="block text-sm font-bold text-white mb-2">Açıklama</label>
+          <textarea name="description" id="assign_description" rows="4" class="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none" placeholder="Görev detaylarını yazın (opsiyonel)"></textarea>
         </div>
-
         <div>
-          <label class="block text-sm font-medium text-gray-700">Ek Dosya (opsiyonel)</label>
-          <input type="file" name="file" id="assign_file" class="mt-1 block w-full">
-          <p class="text-xs text-gray-400 mt-1">Maks 10MB. (Sunucu ayarlarına göre dosya türleri kısıtlanmış olabilir.)</p>
+          <label class="block text-sm font-bold text-white mb-2">Ek Dosya</label>
+          <input type="file" name="file" id="assign_file" class="w-full rounded-lg bg-white/10 border border-white/20 px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 file:cursor-pointer">
+          <p class="text-xs text-gray-400 mt-2">Maksimum 10MB.</p>
         </div>
-
-        <div class="flex justify-end gap-2">
-          <button type="button" id="assignCancel" class="px-3 py-1.5 rounded bg-gray-100">İptal</button>
-          <button type="submit" id="assignSubmit" class="px-3 py-1.5 rounded bg-green-600 text-white">Ata</button>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" id="assignCancel" class="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition-all">İptal</button>
+          <button type="submit" id="assignSubmit" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold transition-all shadow-lg shadow-emerald-500/30">Görevi Ata</button>
         </div>
       </div>
     </form>
@@ -145,190 +221,76 @@
 </div>
 
 <script>
-// Basit HTML escape
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-document.addEventListener('click', function(e){
-  // event delegation: tıklanan iç eleman olsa bile en yakın .open-notes-btn butonunu bul
-  const notesBtn = e.target.closest && e.target.closest('.open-notes-btn');
-  if (notesBtn) {
-    console.log('open-notes-btn clicked:', notesBtn);
-    const id = notesBtn.dataset.userId;
-    // hızlı guard
-    if (!id) {
-      console.error('Butonda data-user-id yok!');
-      return;
-    }
-    openNotesModal(id);
-    return;
-  }
-
-  const assignBtn = e.target.closest && e.target.closest('.open-assign-btn');
-  if (assignBtn) {
-    console.log('open-assign-btn clicked:', assignBtn);
-    const id = assignBtn.dataset.userId;
-    if (!id) {
-      console.error('Assign butonunda data-user-id yok!');
-      return;
-    }
-    openAssignModal(id);
-    return;
-  }
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.addEventListener('click',function(e){
+  const notesBtn=e.target.closest&&e.target.closest('.open-notes-btn');
+  if(notesBtn){const id=notesBtn.dataset.userId;if(!id)return;openNotesModal(id);return;}
+  const assignBtn=e.target.closest&&e.target.closest('.open-assign-btn');
+  if(assignBtn){const id=assignBtn.dataset.userId;if(!id)return;openAssignModal(id);return;}
 });
-
-// Modal close butonlarını güvenli bağla (elemanların varlığını kontrol et)
-const notesClose = document.getElementById('notesModalClose');
-if (notesClose) notesClose.addEventListener('click', closeNotesModal);
-const notesClose2 = document.getElementById('notesModalClose2');
-if (notesClose2) notesClose2.addEventListener('click', closeNotesModal);
-
+const notesClose=document.getElementById('notesModalClose');
+if(notesClose)notesClose.addEventListener('click',closeNotesModal);
+const notesClose2=document.getElementById('notesModalClose2');
+if(notesClose2)notesClose2.addEventListener('click',closeNotesModal);
 function openNotesModal(userId){
-  const modal = document.getElementById('notesModal');
-  const body = document.getElementById('notesModalBody');
-  const title = document.getElementById('notesModalTitle');
-  if (!modal || !body || !title) {
-    console.error('Modal elemanları bulunamadı!');
-    return;
-  }
-
-  modal.classList.remove('hidden');
-  body.innerHTML = '<div class="text-sm text-gray-500">Yükleniyor…</div>';
-  console.log('Fetching notes for userId=', userId);
-
-  fetch(`/api/user/${encodeURIComponent(userId)}/notes`, { credentials: 'same-origin' })
-    .then(r => {
-      console.log('notes fetch status=', r.status);
-      if (!r.ok) {
-        // detaylıerör göstermek için response text al
-        return r.text().then(t => { throw new Error(`HTTP ${r.status}: ${t || r.statusText}`); });
+  const modal=document.getElementById('notesModal');
+  const body=document.getElementById('notesModalBody');
+  const title=document.getElementById('notesModalTitle');
+  if(!modal||!body||!title)return;
+  modal.classList.remove('hidden');modal.classList.add('flex');
+  body.innerHTML='<div class="flex items-center justify-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div></div>';
+  fetch(`/api/user/${encodeURIComponent(userId)}/notes`,{credentials:'same-origin'})
+    .then(r=>{if(!r.ok)return r.text().then(t=>{throw new Error(`HTTP ${r.status}: ${t||r.statusText}`);});return r.json();})
+    .then(data=>{
+      if(!data||!Array.isArray(data.notes)){body.innerHTML='<p class="text-sm text-red-400 text-center py-4">Beklenmeyen yanıt.</p>';return;}
+      title.textContent=(data.user_name||'Kullanıcı')+' — Görevler';
+      if(data.notes.length===0){body.innerHTML='<div class="text-center py-8"><svg class="w-16 h-16 text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p class="text-gray-400">Henüz görev yok</p></div>';return;}
+      let html='<div class="space-y-3">';
+      for(const n of data.notes){
+        const badge=n.completed?'<span class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">✓ Tamamlandı</span>':'<span class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/30">• Devam Ediyor</span>';
+        html+=`<div class="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors"><div class="flex justify-between items-start gap-3 mb-2"><a href="/note/${n.id}" class="font-semibold text-white hover:text-purple-300 transition-colors flex-1">${escapeHtml(n.title)}</a>${badge}</div><div class="text-xs text-gray-400">${new Date(n.date).toLocaleString('tr-TR')}</div></div>`;
       }
-      return r.json();
+      html+='</div>';body.innerHTML=html;
     })
-    .then(data => {
-      // data biçimini kontrol et
-      if (!data || !Array.isArray(data.notes)) {
-        body.innerHTML = '<p class="text-sm text-red-500">Beklenmeyen yanıt alındı.</p>';
-        console.error('Beklenmeyen JSON:', data);
-        return;
-      }
-
-      title.textContent = (data.user_name || 'Kullanıcı') + ' — Son Notlar';
-      if (data.notes.length === 0) {
-        body.innerHTML = '<p class="text-sm text-gray-500">Henüz not yok</p>';
-        return;
-      }
-      let html = '<ul class="space-y-3">';
-      for (const n of data.notes) {
-        html += `<li class="border rounded p-3">
-                   <div class="flex justify-between items-start gap-3">
-                     <div class="min-w-0">
-                       <a href="/note/${n.id}" class="font-medium text-gray-900 hover:underline">${escapeHtml(n.title)}</a>
-                       <div class="text-xs text-gray-400">${new Date(n.date).toLocaleString()}</div>
-                     </div>
-                     <div>
-                       ${n.completed ? '<span class="text-xs inline-block px-2 py-0.5 bg-green-100 text-green-800 rounded">Tamamlandı</span>' : '<span class="text-xs inline-block px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded">Açık</span>'}
-                     </div>
-                   </div>
-                 </li>`;
-      }
-      html += '</ul>';
-      body.innerHTML = html;
-    })
-    .catch(err => {
-      body.innerHTML = `<p class="text-sm text-red-500">Yüklerken hata oluştu: ${escapeHtml(err.message || String(err))}</p>`;
-      console.error('openNotesModal error:', err);
-    });
+    .catch(err=>{body.innerHTML=`<div class="text-center py-8"><p class="text-red-400 font-semibold">Hata: ${escapeHtml(err.message||String(err))}</p></div>`;});
 }
-
-function closeNotesModal(){
-  const modal = document.getElementById('notesModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-// Assign modal close bindings
-const assignClose = document.getElementById('assignModalClose');
-if (assignClose) assignClose.addEventListener('click', closeAssignModal);
-const assignCancel = document.getElementById('assignCancel');
-if (assignCancel) assignCancel.addEventListener('click', closeAssignModal);
-
+function closeNotesModal(){const modal=document.getElementById('notesModal');if(modal){modal.classList.add('hidden');modal.classList.remove('flex');}}
+const assignClose=document.getElementById('assignModalClose');
+if(assignClose)assignClose.addEventListener('click',closeAssignModal);
+const assignCancel=document.getElementById('assignCancel');
+if(assignCancel)assignCancel.addEventListener('click',closeAssignModal);
 function openAssignModal(userId){
-  const modal = document.getElementById('assignModal');
-  if (!modal) { console.error('assignModal bulunamadı'); return; }
-  modal.classList.remove('hidden');
-  document.getElementById('assign_user_id').value = userId;
-  document.getElementById('assign_title').value = '';
-  document.getElementById('assign_description').value = '';
-  document.getElementById('assign_file').value = '';
-  document.getElementById('assignModalTitle').textContent = 'Kullanıcıya Görev Ata';
+  const modal=document.getElementById('assignModal');
+  if(!modal)return;
+  modal.classList.remove('hidden');modal.classList.add('flex');
+  document.getElementById('assign_user_id').value=userId;
+  document.getElementById('assign_title').value='';
+  document.getElementById('assign_description').value='';
+  document.getElementById('assign_file').value='';
 }
-
-function closeAssignModal(){
-  const modal = document.getElementById('assignModal');
-  if (modal) modal.classList.add('hidden');
-}
-
-// AJAX submit (aynı kaldı ama güvenlik için credentials ekledim)
-const assignForm = document.getElementById('assignForm');
-if (assignForm) {
-  assignForm.addEventListener('submit', function(ev){
+function closeAssignModal(){const modal=document.getElementById('assignModal');if(modal){modal.classList.add('hidden');modal.classList.remove('flex');}}
+const assignForm=document.getElementById('assignForm');
+if(assignForm){
+  assignForm.addEventListener('submit',function(ev){
     ev.preventDefault();
-    const form = ev.target;
-    const fd = new FormData(form);
-
-    const btn = document.getElementById('assignSubmit');
-    if (btn) {
-      btn.disabled = true;
-      var oldText = btn.textContent;
-      btn.textContent = 'Gönderiliyor...';
-    }
-
-    fetch('/admin/assign_task', {
-  method: 'POST',
-  body: fd,
-  headers: { 'X-Requested-With': 'XMLHttpRequest' },
-  credentials: 'same-origin'
-})
-.then(async (response) => {
-
-  // 🔴 413 ÖZEL YAKALAMA
-  if (response.status === 413) {
-    const data = await response.json();
-    throw new Error(data.message || 'Dosya boyutu çok büyük');
-  }
-
-  // 🔴 Diğer HTTP hataları
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-    throw new Error(data.error || `Sunucu hatası (${response.status})`);
-  }
-
-  // OK
-  return response.json();
-})
-.then(data => {
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = oldText;
-  }
-
-  if (data && data.ok) {
-    closeAssignModal();
-    alert('Görev başarıyla atandı.');
-    location.reload();
-  } else {
-    alert('Hata: ' + (data.error || 'Bilinmeyen hata'));
-  }
-})
-.catch(err => {
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = oldText;
-  }
-
-  console.error('assign error:', err);
-  alert(err.message || 'Sunucu hatası');
-});
-
+    const fd=new FormData(ev.target);
+    const btn=document.getElementById('assignSubmit');
+    if(btn){btn.disabled=true;var oldText=btn.textContent;btn.textContent='Gönderiliyor...';}
+    fetch('/admin/assign_task',{method:'POST',body:fd,headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'})
+      .then(async(r)=>{
+        if(r.status===413){const data=await r.json();throw new Error(data.message||'Dosya boyutu çok büyük');}
+        if(!r.ok){const data=await r.json().catch(()=>({}));throw new Error(data.error||`Sunucu hatası (${r.status})`);}
+        return r.json();
+      })
+      .then(data=>{
+        if(btn){btn.disabled=false;btn.textContent=oldText;}
+        if(data&&data.ok){closeAssignModal();alert('Görev başarıyla atandı.');location.reload();}
+        else{alert('Hata: '+(data.error||'Bilinmeyen hata'));}
+      })
+      .catch(err=>{
+        if(btn){btn.disabled=false;btn.textContent=oldText;}
+        alert(err.message||'Sunucu hatası');
+      });
   });
 }
 </script>

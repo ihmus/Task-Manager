@@ -48,6 +48,20 @@ def create_app():
 
         flash('Dosya boyutu en fazla 10 MB olabilir.', 'error')
         return redirect(url_for('views.home'))
+    def create_default_categories():
+        names = [
+            ("Okul", "blue"),
+            ("İş", "indigo"),
+            ("Kişisel", "green"),
+            ("Acil", "red"),
+            ("Uzun Vadeli", "purple"),
+        ]
+
+        for name, color in names:
+            if not Category.query.filter_by(name=name).first():
+                db.session.add(Category(name=name, color=color))
+
+        db.session.commit()
     return app
     
 def create_database(app):
