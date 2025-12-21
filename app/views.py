@@ -591,48 +591,27 @@ def new_task():
 @login_required
 def istatistikler():
     user_id = current_user.id
-    now = datetime.now(pytz.utc) # Şu anki zaman (UTC)
-
-    # Kullanıcının tüm notlarını çek
+    now = datetime.now(pytz.utc)
     all_notes = Note.query.filter_by(user_id=user_id).all()
     
-    total_tasks = len(all_notes)
-    completed_tasks = 0
-    overdue_tasks = 0
-    continuing_tasks = 0
+    total = len(all_notes)
+    completed = sum(1 for n in all_notes if n.completed)
+    
+    # Geciken: Tamamlanmamış VE deadline'ı geçmiş
+    overdue = sum(1 for n in all_notes if not n.completed and n.deadline and (n.deadline.replace(tzinfo=pytz.utc) if n.deadline.tzinfo is None else n.deadline) < now)
+    
+    # Devam Eden: Tamamlanmamış VE (deadline'ı geçmemiş VEYA deadline'ı yok)
+    continuing = total - completed - overdue
 
-    for note in all_notes:
-        if note.completed:
-            completed_tasks += 1
-        else:
-            # Deadline varsa ve geçmişse "Geciken", yoksa veya gelecekse "Devam Eden"
-            if note.deadline:
-                # Timezone kontrolü (Zaman dilimi yoksa UTC ekle)
-                deadline = note.deadline
-                if deadline.tzinfo is None:
-                    deadline = deadline.replace(tzinfo=pytz.utc)
-                
-                if deadline < now:
-                    overdue_tasks += 1
-                else:
-                    continuing_tasks += 1
-            else:
-                # Deadline belirlenmemişse ama tamamlanmamışsa devam ediyor sayılır
-                continuing_tasks += 1
-
-    completion_percentage = (
-        round((completed_tasks / total_tasks) * 100, 1)
-        if total_tasks > 0 else 0
-    )
+    completion_percentage = round((completed / total * 100), 1) if total > 0 else 0
 
     return render_template(
         'istatistikler.html',
-        total_tasks=total_tasks,
-        completed_tasks=completed_tasks,
-        overdue_tasks=overdue_tasks,
-        continuing_tasks=continuing_tasks,
-        completion_percentage=completion_percentage,
-        active_page='istatistikler'
+        total_tasks=total,
+        completed_tasks=completed,
+        overdue_tasks=overdue,
+        continuing_tasks=continuing,
+        completion_percentage=completion_percentage
     )
 
 @views.route('/pano')
