@@ -650,11 +650,50 @@ def new_task():
     return render_template('new_task.html', active_page='new_task')
 
 
+# ... (Üstteki importlar tek bir yerde toplanmalı, gereksiz tekrarlar silindi)
+
+@views.route('/admin')
+@login_required
+@role_required('admin')
+def admin_panel():
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+    # Sayfalandırma nesnesi (users)
+    users_pagination = User.query.options(joinedload(User.notes)) \
+        .order_by(User.first_name) \
+        .paginate(page=page, per_page=per_page, error_out=False)
+    
+    user_cards = []
+    for user in users_pagination.items:
+        notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
+        completed = sum(1 for n in notes if n.completed)
+        user_cards.append({
+            'id': user.id,
+            'name': user.first_name or user.email,
+            'role': user.role,
+            'total_notes': len(notes),
+            'completed': completed,
+            'recent_notes': notes[:3]
+        })
+    
+    # users_pagination nesnesini template'e gönderiyoruz ki sayfa linkleri çalışsın
+    return render_template('admin.html', users=users_pagination, user_cards=user_cards, active_page='admin_panel')
+
+@views.route('/create_note', methods=['GET', 'POST']) # GET eklendi
+@login_required
+def create_note():
+    if request.method == 'GET':
+        categories = Category.query.all()
+        return render_template('new_note.html', categories=categories, active_page='new_note')
+    
+    # POST işlemleri burada devam eder...
+    # (Diğer form alma ve kayıt işlemleri kodunuzdaki gibi kalabilir)
+    # Ancak try-except bloklarındaki flash mesajlarından sonra return eklemeyi unutmayın.
+
 @views.route('/istatistikler')
 @login_required
 def istatistikler():
     user_id = current_user.id
-<<<<<<< HEAD
     now = datetime.now(pytz.utc)
     all_notes = Note.query.filter_by(user_id=user_id).all()
     
@@ -662,11 +701,10 @@ def istatistikler():
     completed = sum(1 for n in all_notes if n.completed)
     
     # Geciken: Tamamlanmamış VE deadline'ı geçmiş
-    overdue = sum(1 for n in all_notes if not n.completed and n.deadline and (n.deadline.replace(tzinfo=pytz.utc) if n.deadline.tzinfo is None else n.deadline) < now)
+    overdue = sum(1 for n in all_notes if not n.completed and n.deadline and 
+                 (n.deadline.replace(tzinfo=pytz.utc) if n.deadline.tzinfo is None else n.deadline) < now)
     
-    # Devam Eden: Tamamlanmamış VE (deadline'ı geçmemiş VEYA deadline'ı yok)
     continuing = total - completed - overdue
-
     completion_percentage = round((completed / total * 100), 1) if total > 0 else 0
 
     return render_template(
@@ -675,28 +713,6 @@ def istatistikler():
         completed_tasks=completed,
         overdue_tasks=overdue,
         continuing_tasks=continuing,
-        completion_percentage=completion_percentage
-=======
-
-    total_tasks = Note.query.filter_by(user_id=user_id).count()
-    completed_tasks = Note.query.filter_by(
-        user_id=user_id,
-        completed=True
-    ).count()
-
-    pending_tasks = total_tasks - completed_tasks
-
-    completion_percentage = (
-        round((completed_tasks / total_tasks) * 100, 1)
-        if total_tasks > 0 else 0
-    )
-
-    return render_template(
-        'istatistikler.html',
-        total_tasks=total_tasks,
-        completed_tasks=completed_tasks,
-        pending_tasks=pending_tasks,
         completion_percentage=completion_percentage,
         active_page='istatistikler'
->>>>>>> 8ab0c1b3eb0abcb6b10b7c15856b73f85100c0c7
     )
