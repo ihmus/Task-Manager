@@ -679,12 +679,12 @@ def new_task():
 #     # users_pagination nesnesini template'e gönderiyoruz ki sayfa linkleri çalışsın
 #     return render_template('admin.html', users=users_pagination, user_cards=user_cards, active_page='admin_panel')
 
-@views.route('/create_note', methods=['GET', 'POST']) # GET eklendi
-@login_required
-def create_note():
-    if request.method == 'GET':
-        categories = Category.query.all()
-        return render_template('new_note.html', categories=categories, active_page='new_note')
+# @views.route('/create_note', methods=['GET', 'POST']) # GET eklendi
+# @login_required
+# def create_note():
+#     if request.method == 'GET':
+#         categories = Category.query.all()
+#         return render_template('new_note.html', categories=categories, active_page='new_note')
     
     # POST işlemleri burada devam eder...
     # (Diğer form alma ve kayıt işlemleri kodunuzdaki gibi kalabilir)
