@@ -652,32 +652,32 @@ def new_task():
 
 # ... (Üstteki importlar tek bir yerde toplanmalı, gereksiz tekrarlar silindi)
 
-@views.route('/admin')
-@login_required
-@role_required('admin')
-def admin_panel():
-    page = request.args.get('page', 1, type=int)
-    per_page = 12
-    # Sayfalandırma nesnesi (users)
-    users_pagination = User.query.options(joinedload(User.notes)) \
-        .order_by(User.first_name) \
-        .paginate(page=page, per_page=per_page, error_out=False)
+# @views.route('/admin')
+# @login_required
+# @role_required('admin')
+# def admin_panel():
+#     page = request.args.get('page', 1, type=int)
+#     per_page = 12
+#     # Sayfalandırma nesnesi (users)
+#     users_pagination = User.query.options(joinedload(User.notes)) \
+#         .order_by(User.first_name) \
+#         .paginate(page=page, per_page=per_page, error_out=False)
     
-    user_cards = []
-    for user in users_pagination.items:
-        notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
-        completed = sum(1 for n in notes if n.completed)
-        user_cards.append({
-            'id': user.id,
-            'name': user.first_name or user.email,
-            'role': user.role,
-            'total_notes': len(notes),
-            'completed': completed,
-            'recent_notes': notes[:3]
-        })
+#     user_cards = []
+#     for user in users_pagination.items:
+#         notes = sorted(user.notes, key=lambda n: n.date, reverse=True)
+#         completed = sum(1 for n in notes if n.completed)
+#         user_cards.append({
+#             'id': user.id,
+#             'name': user.first_name or user.email,
+#             'role': user.role,
+#             'total_notes': len(notes),
+#             'completed': completed,
+#             'recent_notes': notes[:3]
+#         })
     
-    # users_pagination nesnesini template'e gönderiyoruz ki sayfa linkleri çalışsın
-    return render_template('admin.html', users=users_pagination, user_cards=user_cards, active_page='admin_panel')
+#     # users_pagination nesnesini template'e gönderiyoruz ki sayfa linkleri çalışsın
+#     return render_template('admin.html', users=users_pagination, user_cards=user_cards, active_page='admin_panel')
 
 @views.route('/create_note', methods=['GET', 'POST']) # GET eklendi
 @login_required
