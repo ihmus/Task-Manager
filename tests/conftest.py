@@ -1,47 +1,40 @@
 import pytest
-import sys
-import os
-
-# Proje yolunu ekle
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from app import create_app, db
-from app.models import User, Note
+from app.models import User, Category
+from werkzeug.security import generate_password_hash
 
 @pytest.fixture
 def app():
-    """Test için Flask uygulaması oluştur"""
     app = create_app()
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['WTF_CSRF_ENABLED'] = False
-    
+    app.config.update({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "WTF_CSRF_ENABLED": False,
+    })
+
     with app.app_context():
         db.create_all()
+        # Test için bir kategori ekleyelim
+        cat = Category(name="Genel")
+        db.session.add(cat)
+        db.session.commit()
         yield app
-        db.session.remove()
         db.drop_all()
 
 @pytest.fixture
 def client(app):
-    """Test client oluştur"""
     return app.test_client()
 
 @pytest.fixture
-def test_user(app):
-    """Test kullanıcısı oluştur - ID'yi döndür"""
-    from werkzeug.security import generate_password_hash
-    
+def auth_client(client, app):
+    """Giriş yapmış bir kullanıcı simüle eder."""
     with app.app_context():
-        user = User(
-            email='test@example.com',
-            first_name='Test',
-            password=generate_password_hash('test123', method='pbkdf2:sha256')
-        )
+        # Şifreyi auth.py'deki formata uygun hashliyoruz
+        hashed_pw = generate_password_hash("123456", method='pbkdf2:sha256')
+        user = User(email="test@test.com", first_name="Test", role="admin", password=hashed_pw)
         db.session.add(user)
         db.session.commit()
-        user_id = user.id  # ← ID'yi kaydet
-        db.session.expunge(user)  # ← Session'dan çıkar
-    
-    # ID'yi döndür, obje değil
-    return user_id
+        
+        # auth.py'deki login rotasına post yapıyoruz
+        client.post('/login', data={'email': 'test@test.com', 'password': '123456'}, follow_redirects=True)
+        return client
