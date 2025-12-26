@@ -13,10 +13,12 @@ def test_new_user(app):
         assert retrieved_user is not None
         assert retrieved_user.first_name == "Model"
 
+
+
+
 def test_note_creation(app):
     """Not oluşturma ve veritabanı kaydını test et."""
     with app.app_context():
-        # content yerine description kullanıyoruz (models.py'ye uygun)
         note = Note(title="Test Başlığı", description="Test İçeriği")
         db.session.add(note)
         db.session.commit()
