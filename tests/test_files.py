@@ -20,7 +20,6 @@ def test_file_upload_with_note(auth_client, app):
             'category_id': '1',
             'start_date': '2023-12-01T10:00',
             'deadline': '2023-12-10T10:00',
-            # 'file' alanı views.py'deki request.files['file'] ile eşleşmeli
             'file': (io.BytesIO(b"deneme icerigi"), 'test_dosyasi.txt')
         }
         
