@@ -297,7 +297,7 @@ def admin_assign_task():
         db.session.rollback()
         current_app.logger.exception("assign_task hata")
         return jsonify({'error':'server_error', 'msg': str(e)}), 500
-@views.route('/new-note', methods=['GET'])
+@views.route('/', methods=['GET']) 
 @login_required
 def home():
     default_mode = request.args.get('default_mode', '1', type=int)
@@ -723,3 +723,10 @@ def istatistikler():
 
 
 
+@views.route('/debug_db')
+def debug_db():
+    import os
+    db_uri = current_app.config['SQLALCHEMY_DATABASE_URI']
+    full_path = os.path.abspath(db_uri.replace('sqlite:///', ''))
+    exists = os.path.exists(full_path)
+    return f"DB URI: {db_uri}<br>Tam Yol: {full_path}<br>Dosya Var mı?: {exists}"

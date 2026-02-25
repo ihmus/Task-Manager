@@ -8,7 +8,7 @@ def app():
     app = create_app()
     app.config.update({
         "TESTING": True,
-        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        "_DATABASE_URI": "sqlite:///:memory:",
         "WTF_CSRF_ENABLED": False,
     })
 
